@@ -16,3 +16,9 @@ hs_err_pid*
 .classpath
 .project
 
+#IDEA Project Files and Directory
+.idea
+*.iml
+
+#Output Folder
+out/

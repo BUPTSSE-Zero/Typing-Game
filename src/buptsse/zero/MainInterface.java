@@ -1,16 +1,7 @@
 package buptsse.zero;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.FileDialog;
-import java.awt.Font;
-import java.awt.Insets;
-import java.awt.Toolkit;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.ItemEvent;
-import java.awt.event.ItemListener;
+import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
 import java.io.FilenameFilter;
 import java.util.Enumeration;
@@ -28,15 +19,19 @@ import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
 
-import com.sun.java.swing.plaf.gtk.GTKLookAndFeel;
-import com.sun.java.swing.plaf.windows.WindowsLookAndFeel;
-
 public class MainInterface {
 	private static JFrame MainWindow = null;
 	private static Box MainBox = null;
 	public static Font GlobalFont = null;
 	public static Dimension ScreenSize = null;
-	
+
+	enum SystemPlatform
+	{
+		OS_WINDOWS,
+		OS_LINUX
+	}
+	public static SystemPlatform OSInfo;
+
 	private static final int WINDOW_WIDTH = 700;
 	private static String WINDOW_TITLE = "Typing Game";
 	private static final int VERTICAL_MARGIN = 10;
@@ -58,9 +53,15 @@ public class MainInterface {
 		{
 			String OSName = System.getProperty("os.name");
 			if(OSName.toLowerCase().startsWith("win"))
-				UIManager.setLookAndFeel(WindowsLookAndFeel.class.getName());
+			{
+				OSInfo = SystemPlatform.OS_WINDOWS;
+				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+			}
 			else
-				UIManager.setLookAndFeel(GTKLookAndFeel.class.getName());
+			{
+				OSInfo = SystemPlatform.OS_LINUX;
+				UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+			}
 		}catch(Exception e){
 			System.err.println("Can't load the system theme.");
 		}
@@ -163,13 +164,10 @@ public class MainInterface {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				// TODO Auto-generated method stub
-				if(e.getStateChange() == ItemEvent.DESELECTED)
-				{
+				if (e.getStateChange() == ItemEvent.DESELECTED) {
 					Option2TextField.setEnabled(false);
 					BrowseButton.setEnabled(false);
-				}
-				else
-				{
+				} else {
 					Option2TextField.setEnabled(true);
 					BrowseButton.setEnabled(true);
 				}
@@ -182,7 +180,7 @@ public class MainInterface {
 			@Override
 			public boolean accept(File dir, String name) {
 				// TODO Auto-generated method stub
-				if(name.toLowerCase().endsWith(".xml"))
+				if (name.toLowerCase().endsWith(".xml"))
 					return true;
 				return false;
 			}
@@ -193,7 +191,12 @@ public class MainInterface {
 				// TODO Auto-generated method stub
 				FileBrowseDialog.setVisible(true);
 				if(FileBrowseDialog.getFile() != null)
-					Option2TextField.setText(FileBrowseDialog.getFile());
+				{
+					if(FileBrowseDialog.getFile().contains(File.pathSeparator))
+						Option2TextField.setText(FileBrowseDialog.getFile());
+					else
+						Option2TextField.setText(FileBrowseDialog.getDirectory() + FileBrowseDialog.getFile());
+				}
 			}
 		});
 		Option2Box.add(BrowseButton);
@@ -222,7 +225,7 @@ public class MainInterface {
 			}
 		});
 		ButtonBox.add(AboutButton);
-		JButton EnterButton = new JButton(LABEL_ENTER, new ImageIcon(MainInterface.class.getResource("res/icon/icon-enter.png")));
+		final JButton EnterButton = new JButton(LABEL_ENTER, new ImageIcon(MainInterface.class.getResource("res/icon/icon-enter.png")));
 		EnterButton.setFont(GlobalFont);
 		EnterButton.setMargin(new Insets(2, 20, 2, 20));
 		ButtonBox.add(Box.createHorizontalGlue());
@@ -235,9 +238,9 @@ public class MainInterface {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				int ret = JOptionPane.showConfirmDialog(MainWindow, TEXT_QUERY_EXIT, WINDOW_TITLE, 
-														JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(MainInterface.class.getResource("res/icon/dialog-question.png")));
-				if(ret == JOptionPane.OK_OPTION)
+				int ret = JOptionPane.showConfirmDialog(MainWindow, TEXT_QUERY_EXIT, WINDOW_TITLE,
+						JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(MainInterface.class.getResource("res/icon/dialog-question.png")));
+				if (ret == JOptionPane.OK_OPTION)
 					MainWindow.dispose();
 			}
 		});
@@ -246,6 +249,25 @@ public class MainInterface {
 		MainBox.add(ButtonBox);
 		MainBox.add(Box.createVerticalStrut(VERTICAL_MARGIN + 5));
 		MainWindow.add(MainBox, BorderLayout.NORTH);
+
+		Option1TextField.addKeyListener(new KeyListener() {
+			@Override
+			public void keyTyped(KeyEvent e) {
+				if(e.getKeyChar() ==  KeyEvent.VK_ENTER)
+					EnterButton.doClick();
+				if ((e.getKeyChar() < KeyEvent.VK_0 || e.getKeyChar() > KeyEvent.VK_9) && e.getKeyChar() != KeyEvent.VK_BACK_SPACE)
+					e.consume();                        //exclude the non-number input
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+
+		});
 	}
 	
 	public static void main(String[] args) {
