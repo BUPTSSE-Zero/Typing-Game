@@ -18,6 +18,7 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
+import javax.xml.soap.Text;
 
 public class MainInterface {
 	private static JFrame MainWindow = null;
@@ -38,6 +39,7 @@ public class MainInterface {
 	private static final int HORIZONTAL_MARGIN = 10;
 	private static final float TITLE_FONT_SIZE = (float)40.0;
 	private static final float TEXT_FONT_SIZE = (float)18.0;
+	private static final int NUM_MAX_LENGTH = 8;
 	private static String LABEL_PLAYER_NAME = "Player Name";
 	private static String LABEL_INTERNAL_TEXT = "Internal Text(ID number)";
 	private static String LABEL_EXTERNAL_TEXT = "External Text File";
@@ -55,7 +57,8 @@ public class MainInterface {
 			if(OSName.toLowerCase().startsWith("win"))
 			{
 				OSInfo = SystemPlatform.OS_WINDOWS;
-				UIManager.setLookAndFeel("com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                GlobalFont = Font.decode("Microsoft YaHei UI").deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
 			}
 			else
 			{
@@ -63,17 +66,27 @@ public class MainInterface {
 				UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
 			}
 		}catch(Exception e){
-			System.err.println("Can't load the system theme.");
+			System.err.println("Can't load the system theme or the specific font.");
+            GlobalFont = Font.decode("Default").deriveFont(TEXT_FONT_SIZE);
 		}
-		Enumeration<Object> KeyVector = UIManager.getDefaults().keys();
-		while(KeyVector.hasMoreElements())
-		{
-			Object key = KeyVector.nextElement();
-			Object value = UIManager.get(key);
-			if(value instanceof FontUIResource)
-				GlobalFont = ((FontUIResource)value).deriveFont(TEXT_FONT_SIZE);
-		}
-		
+        Enumeration<Object> KeyVector = UIManager.getDefaults().keys();
+        while(KeyVector.hasMoreElements())
+        {
+            Object key = KeyVector.nextElement();
+            Object value = UIManager.get(key);
+            if (value instanceof FontUIResource) {
+                System.out.println("Key:" + key + " Font:" + ((Font) value).getFamily());
+                if(GlobalFont == null)
+                    GlobalFont = ((FontUIResource) value).deriveFont(TEXT_FONT_SIZE);
+                if(OSInfo == SystemPlatform.OS_LINUX && GlobalFont != null)
+                    break;
+                else if(OSInfo == SystemPlatform.OS_WINDOWS && key.toString().contains("FileChooser"))
+                {
+                    GlobalFont = ((FontUIResource)value).deriveFont(TEXT_FONT_SIZE);
+                    break;
+                }
+            }
+        }
 	}
 	
 	private static void initWindow()
@@ -104,12 +117,12 @@ public class MainInterface {
 		Box PlayerNameInputBox = Box.createHorizontalBox();
 		PlayerNameInputBox.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		JLabel LabelPlayerName = new JLabel(LABEL_PLAYER_NAME + ":");
-		LabelPlayerName.setFont(GlobalFont.deriveFont(TEXT_FONT_SIZE));
+		LabelPlayerName.setFont(GlobalFont);
 		PlayerNameInputBox.add(LabelPlayerName);
 		PlayerNameInputBox.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		JTextField PlayerNameInput = new JTextField();
-		PlayerNameInput.setFont(GlobalFont.deriveFont(TEXT_FONT_SIZE));
 		PlayerNameInput.setMargin(new Insets(2, 4, 2, HORIZONTAL_MARGIN));
+		PlayerNameInput.setFont(GlobalFont);
 		PlayerNameInputBox.add(PlayerNameInput);
 		PlayerNameInputBox.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		TextFieldBox.add(PlayerNameInputBox);
@@ -257,6 +270,8 @@ public class MainInterface {
 					EnterButton.doClick();
 				if ((e.getKeyChar() < KeyEvent.VK_0 || e.getKeyChar() > KeyEvent.VK_9) && e.getKeyChar() != KeyEvent.VK_BACK_SPACE)
 					e.consume();                        //exclude the non-number input
+				if(Option1TextField.getText().length() >= NUM_MAX_LENGTH && e.getKeyChar() != KeyEvent.VK_BACK_SPACE)
+					e.consume();
 			}
 
 			@Override
