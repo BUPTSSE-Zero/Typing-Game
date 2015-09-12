@@ -3,7 +3,9 @@ package buptsse.zero;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FilenameFilter;
+import java.util.ArrayList;
 import java.util.Enumeration;
 
 import javax.swing.BorderFactory;
@@ -34,20 +36,25 @@ public class MainInterface {
 	public static SystemPlatform OSInfo;
 
 	private static final int WINDOW_WIDTH = 700;
-	private static String WINDOW_TITLE = "Typing Game";
+    public static String PRODUCT_NAME = "Typing Game";
+	private static String WINDOW_TITLE = PRODUCT_NAME;
 	private static final int VERTICAL_MARGIN = 10;
 	private static final int HORIZONTAL_MARGIN = 10;
 	private static final float TITLE_FONT_SIZE = (float)40.0;
 	private static final float TEXT_FONT_SIZE = (float)18.0;
 	private static final int NUM_MAX_LENGTH = 8;
-	private static String LABEL_PLAYER_NAME = "Player Name";
-	private static String LABEL_INTERNAL_TEXT = "Internal Text(ID number)";
-	private static String LABEL_EXTERNAL_TEXT = "External Text File";
-	private static String LABEL_BROWSE = "Browse";
-	private static String LABEL_ENTER = "Enter";
-	private static String LABEL_EXIT = "Exit";
-	private static String LABEL_ABOUT = "About";
-	private static String TEXT_QUERY_EXIT = "Do you really want to exit?";
+	public static String LABEL_PLAYER_NAME = "Player Name";
+	public static String LABEL_INTERNAL_TEXT = "Internal Text(ID number)";
+	public static String LABEL_EXTERNAL_TEXT = "External Text File";
+	public static String LABEL_BROWSE = "Browse";
+	public static String LABEL_ENTER = "Enter";
+	public static String LABEL_EXIT = "Exit";
+	public static String LABEL_ABOUT = "About";
+	public static String MESSAGE_QUERY_EXIT = "Do you really want to exit?";
+	public static String MESSAGE_PLAYER_NAME_BLANK = "The player name can't be blank.";
+	public static String MESSAGE_FILE_OPEN_FAILD = "The specific text file can't be open.";
+	public static String MESSAGE_TEXT_EMPTY = "Can't find any text in the specific text file.";
+
 	//Set the UI font to the system default font and the theme to the system theme.
 	private static void setUI()
 	{
@@ -120,7 +127,7 @@ public class MainInterface {
 		LabelPlayerName.setFont(GlobalFont);
 		PlayerNameInputBox.add(LabelPlayerName);
 		PlayerNameInputBox.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
-		JTextField PlayerNameInput = new JTextField();
+		final JTextField PlayerNameInput = new JTextField();
 		PlayerNameInput.setMargin(new Insets(2, 4, 2, HORIZONTAL_MARGIN));
 		PlayerNameInput.setFont(GlobalFont);
 		PlayerNameInputBox.add(PlayerNameInput);
@@ -233,14 +240,14 @@ public class MainInterface {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				JOptionPane.showMessageDialog(MainWindow, WINDOW_TITLE + "\n" + "Powered by Java Swing\nCopyright© 2015 BUPTSSE-Zero", LABEL_ABOUT, 
-											  JOptionPane.INFORMATION_MESSAGE, new ImageIcon(MainInterface.class.getResource("res/icon/dialog-information.png")));
+				JOptionPane.showMessageDialog(MainWindow, WINDOW_TITLE + "\n" + "Powered by Java Swing\nCopyright© 2015 BUPTSSE-Zero", LABEL_ABOUT,
+						JOptionPane.INFORMATION_MESSAGE, new ImageIcon(MainInterface.class.getResource("res/icon/dialog-information.png")));
 			}
 		});
 		ButtonBox.add(AboutButton);
 		final JButton EnterButton = new JButton(LABEL_ENTER, new ImageIcon(MainInterface.class.getResource("res/icon/icon-enter.png")));
 		EnterButton.setFont(GlobalFont);
-		EnterButton.setMargin(new Insets(2, 20, 2, 20));
+		EnterButton.setMargin(new Insets(2, 30, 2, 30));
 		ButtonBox.add(Box.createHorizontalGlue());
 		ButtonBox.add(EnterButton);
 		ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
@@ -251,10 +258,12 @@ public class MainInterface {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				int ret = JOptionPane.showConfirmDialog(MainWindow, TEXT_QUERY_EXIT, WINDOW_TITLE,
+				int ret = JOptionPane.showConfirmDialog(MainWindow, MESSAGE_QUERY_EXIT, WINDOW_TITLE,
 						JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, new ImageIcon(MainInterface.class.getResource("res/icon/dialog-question.png")));
-				if (ret == JOptionPane.OK_OPTION)
+				if (ret == JOptionPane.OK_OPTION) {
 					MainWindow.dispose();
+					System.exit(0);
+				}
 			}
 		});
 		ButtonBox.add(ExitButton);
@@ -266,11 +275,11 @@ public class MainInterface {
 		Option1TextField.addKeyListener(new KeyListener() {
 			@Override
 			public void keyTyped(KeyEvent e) {
-				if(e.getKeyChar() ==  KeyEvent.VK_ENTER)
+				if (e.getKeyChar() == KeyEvent.VK_ENTER)
 					EnterButton.doClick();
 				if ((e.getKeyChar() < KeyEvent.VK_0 || e.getKeyChar() > KeyEvent.VK_9) && e.getKeyChar() != KeyEvent.VK_BACK_SPACE)
 					e.consume();                        //exclude the non-number input
-				if(Option1TextField.getText().length() >= NUM_MAX_LENGTH && e.getKeyChar() != KeyEvent.VK_BACK_SPACE)
+				if (Option1TextField.getText().length() >= NUM_MAX_LENGTH && e.getKeyChar() != KeyEvent.VK_BACK_SPACE)
 					e.consume();
 			}
 
@@ -283,6 +292,82 @@ public class MainInterface {
 			}
 
 		});
+
+        PlayerNameInput.addKeyListener(new KeyListener() {
+            @Override
+            public void keyTyped(KeyEvent e) {
+                if(e.getKeyChar() == KeyEvent.VK_ENTER)
+                    EnterButton.doClick();
+            }
+
+            @Override
+            public void keyPressed(KeyEvent e) {}
+
+            @Override
+            public void keyReleased(KeyEvent e) {}
+        });
+
+		EnterButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				String TempStr = PlayerNameInput.getText();
+				int SpaceCount = 0;
+				for(int i = 0; i < TempStr.length(); i++)
+				{
+					if(TempStr.charAt(i) == ' ')
+						SpaceCount++;
+				}
+				if(SpaceCount == TempStr.length())
+				{
+					showErrorDialog(MESSAGE_PLAYER_NAME_BLANK);
+					PlayerNameInput.requestFocus();
+					PlayerNameInput.selectAll();
+					return;
+				}
+				TextFileParser parser = new TextFileParser();
+				String FilePath = null;
+				if(Option1Radio.isSelected() && Option1TextField.getText().length() > 0)
+				{
+					int IDNum = Integer.parseInt(Option1TextField.getText());
+					FilePath = "res/text/text" + IDNum + ".xml";
+					if(parser.parseFile(MainInterface.class.getResourceAsStream(FilePath)) == false)
+					{
+						showErrorDialog(MESSAGE_FILE_OPEN_FAILD + "\n" + FilePath);
+						return;
+					}
+				}
+				else if(Option2Radio.isSelected() && Option2TextField.getText().length() > 0)
+				{
+					boolean ParseResult;
+					FilePath = Option2TextField.getText();
+					try{
+						ParseResult = parser.parseFile(new FileInputStream(FilePath));
+					}catch (Exception exception) {
+						exception.printStackTrace();
+						ParseResult = false;
+					}
+					if(!ParseResult){
+						showErrorDialog(MESSAGE_FILE_OPEN_FAILD + "\n" + FilePath);
+						return;
+					}
+				}
+				else
+					return;
+				ArrayList<String> TextList = parser.getMultiRowText();
+				if(TextList.isEmpty())
+				{
+					showErrorDialog(MESSAGE_TEXT_EMPTY + "\n" + FilePath);
+					return;
+				}
+				new GameInterface(TempStr, TextList).show();
+			}
+		});
+	}
+
+	private static void showErrorDialog(String message)
+	{
+		JOptionPane.showMessageDialog(MainWindow, message, WINDOW_TITLE, JOptionPane.CLOSED_OPTION,
+										new ImageIcon(MainInterface.class.getResource("res/icon/dialog-error.png")));
 	}
 	
 	public static void main(String[] args) {

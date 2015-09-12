@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<typing-game>
+	<text>This is a sample text file.</text>
+	<text>The text file's text format must be XML,and its encoding must be UTF-8.</text>
+	<text>The name of root element is "typing-game".</text>
+	<text>Each element named "text" in the root element represents the text in each row.</text>
+	<text>This is the Row 5 text.</text>
+</typing-game>
