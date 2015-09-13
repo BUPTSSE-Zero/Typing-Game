@@ -3,7 +3,10 @@ package buptsse.zero;
 import jdk.internal.util.xml.impl.Input;
 
 import javax.swing.*;
+import javax.swing.event.CaretEvent;
+import javax.swing.event.CaretListener;
 import java.awt.*;
+import java.awt.event.*;
 import java.util.ArrayList;
 
 public class GameInterface
@@ -13,6 +16,7 @@ public class GameInterface
     private JFrame GameWindow = null;
     private Box MainBox = null;
     private int WindowTotalHeight = 0;
+    private boolean PlayingFlag = false;
 
     private final int VERTICAL_MARGIN = 10;
     private final int HORIZONTAL_MARGIN = 10;
@@ -21,6 +25,8 @@ public class GameInterface
 
     private static ImageIcon IconOK = null;
     private static ImageIcon IconError = null;
+    private static ImageIcon IconStart = null;
+    private static ImageIcon IconPause = null;
 
     public static String LABEL_QUIT = "Quit";
     public static String LABEL_START = "Start";
@@ -53,14 +59,14 @@ public class GameInterface
         GameWindow.add(MainBox, BorderLayout.NORTH);
 
         //Load Text
-        int i;
+        final AutoCheckDocument AutoChecker[] = new AutoCheckDocument[MultiRowText.size()];
         JLabel TextLabel[] = new JLabel[MultiRowText.size()];
         JTextField InputField[] = new JTextField[MultiRowText.size()];
         ScrollView ScrollTextView = new ScrollView();
         Box ScrollBox = Box.createVerticalBox();
         ScrollBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));
         int TotalHeight = 0;
-        for(i = 0; i < MultiRowText.size(); i++)
+        for(int i = 0; i < MultiRowText.size(); i++)
         {
             Box TextLabelBox = Box.createHorizontalBox();
             TextLabelBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
@@ -79,6 +85,8 @@ public class GameInterface
             JLabel IconIndicator = new JLabel(IconError);
             InputFieldBox.add(IconIndicator);
             InputFieldBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
+            AutoChecker[i] = new AutoCheckDocument(MultiRowText.get(i), IconIndicator, IconOK, IconError);
+            InputField[i].setDocument(AutoChecker[i]);
 
             ScrollBox.add(TextLabelBox);
             ScrollBox.add(Box.createVerticalStrut(VERTICAL_MARGIN / 2));
@@ -106,20 +114,20 @@ public class GameInterface
         ButtonBox.add(QuitButton);
         ButtonBox.add(Box.createHorizontalGlue());
 
-        JButton ControlButton = new JButton(LABEL_START, new ImageIcon(GameInterface.class.getResource("res/icon/icon-start.png")));
+        final JButton ControlButton = new JButton(LABEL_START, new ImageIcon(GameInterface.class.getResource("res/icon/icon-start.png")));
         ControlButton.setFont(MainInterface.GlobalFont);
         ControlButton.setMargin(new Insets(2, 40, 2, 40));
         ButtonBox.add(ControlButton);
         ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
 
-        JButton FinishButton = new JButton(LABEL_FINISH, new ImageIcon(GameInterface.class.getResource("res/icon/icon-finish.png")));
+        final JButton FinishButton = new JButton(LABEL_FINISH, new ImageIcon(GameInterface.class.getResource("res/icon/icon-finish.png")));
         FinishButton.setFont(MainInterface.GlobalFont);
         FinishButton.setMargin(new Insets(2, 15, 2, 15));
         FinishButton.setEnabled(false);
         ButtonBox.add(FinishButton);
         ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
 
-        JButton ReplayButton = new JButton(LABEL_REPLAY, new ImageIcon(GameInterface.class.getResource("res/icon/icon-replay.png")));
+        final JButton ReplayButton = new JButton(LABEL_REPLAY, new ImageIcon(GameInterface.class.getResource("res/icon/icon-replay.png")));
         ReplayButton.setFont(MainInterface.GlobalFont);
         ReplayButton.setMargin(new Insets(2, 10, 2, 10));
         ButtonBox.add(ReplayButton);
@@ -128,6 +136,57 @@ public class GameInterface
         ButtonAreaBox.add(ButtonBox);
         ButtonAreaBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));
         GameWindow.add(ButtonAreaBox, BorderLayout.SOUTH);
+
+        //Key Listener
+        InputField[0].requestFocus();
+        for(int i = 0; i < InputField.length; i++)
+        {
+            final JTextField PreInput;
+            final JTextField NextInput;
+            if(i > 0)
+                PreInput = InputField[i - 1];
+            else
+                PreInput = InputField[InputField.length - 1];
+            if(i < InputField.length - 1)
+                NextInput = InputField[i + 1];
+            else
+                NextInput = InputField[0];
+            InputField[i].addKeyListener(new KeyListener() {
+                @Override
+                public void keyTyped(KeyEvent e) {
+                    if(PlayingFlag == false)
+                    {
+                        if(e.getKeyChar() == KeyEvent.VK_ENTER)
+                        {
+                            ControlButton.doClick();
+                            FinishButton.setEnabled(true);
+                            PlayingFlag = true;
+                        }
+                        else
+                        {
+                            e.consume();
+                            return;
+                        }
+                    }
+                }
+
+                @Override
+                public void keyPressed(KeyEvent e) {
+                    if (e.isControlDown() || e.isAltDown())
+                        e.consume();
+                    if (e.getKeyCode() == KeyEvent.VK_DOWN)
+                        NextInput.requestFocus();
+                    else if(e.getKeyCode() == KeyEvent.VK_UP)
+                        PreInput.requestFocus();
+                }
+
+                @Override
+                public void keyReleased(KeyEvent e) {
+                    if (e.isControlDown() || e.isAltDown())
+                        e.consume();
+                }
+            });
+        }
 
         WindowTotalHeight = MainBox.getMinimumSize().height + ScrollBox.getMinimumSize().height + ButtonAreaBox.getMinimumSize().height + 20;
     }
@@ -141,6 +200,10 @@ public class GameInterface
             IconError = new ImageIcon(GameInterface.class.getResource("res/icon/icon-error.png"));
         if(IconOK == null)
             IconOK = new ImageIcon(GameInterface.class.getResource("res/icon/icon-ok.png"));
+        if(IconStart == null)
+            IconStart = new ImageIcon(GameInterface.class.getResource("res/icon/icon-start.png"));
+        if(IconPause == null)
+            IconPause = new ImageIcon(GameInterface.class.getResource("res/icon/icon-pause.png"));
     }
 
     public void show()
@@ -155,3 +218,4 @@ public class GameInterface
         GameWindow.setLocation((MainInterface.ScreenSize.width - GameWindow.getWidth()) / 2, (MainInterface.ScreenSize.height - GameWindow.getHeight()) / 2);
     }
 }
+

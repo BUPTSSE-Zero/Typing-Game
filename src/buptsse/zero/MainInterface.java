@@ -53,6 +53,7 @@ public class MainInterface {
 	public static String MESSAGE_PLAYER_NAME_BLANK = "The player name can't be blank.";
 	public static String MESSAGE_FILE_OPEN_FAILD = "The specific text file can't be open.";
 	public static String MESSAGE_TEXT_EMPTY = "Can't find any text in the specific text file.";
+	public static String MESSAGE_ID_NUMBER_INVALID = "The ID number is invalid.";
 
 	//Set the UI font to the system default font and the theme to the system theme.
 	private static void setUI()
@@ -283,12 +284,10 @@ public class MainInterface {
 			}
 
 			@Override
-			public void keyPressed(KeyEvent e) {
-			}
+			public void keyPressed(KeyEvent e) {}
 
 			@Override
-			public void keyReleased(KeyEvent e) {
-			}
+			public void keyReleased(KeyEvent e) {}
 
 		});
 
@@ -327,7 +326,13 @@ public class MainInterface {
 				String FilePath = null;
 				if(Option1Radio.isSelected() && Option1TextField.getText().length() > 0)
 				{
-					int IDNum = Integer.parseInt(Option1TextField.getText());
+					int IDNum = 0;
+					try{
+						IDNum = Integer.parseInt(Option1TextField.getText());
+					}catch (Exception exception){
+						showErrorDialog(MESSAGE_ID_NUMBER_INVALID);
+						return;
+					}
 					FilePath = "res/text/text" + IDNum + ".xml";
 					if(parser.parseFile(MainInterface.class.getResourceAsStream(FilePath)) == false)
 					{
