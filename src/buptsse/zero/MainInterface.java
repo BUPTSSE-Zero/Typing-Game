@@ -20,7 +20,6 @@ import javax.swing.JRadioButton;
 import javax.swing.JTextField;
 import javax.swing.UIManager;
 import javax.swing.plaf.FontUIResource;
-import javax.xml.soap.Text;
 
 public class MainInterface {
 	private static JFrame MainWindow = null;
@@ -139,7 +138,7 @@ public class MainInterface {
 		//RadioButton1 and TextField
 		Box Option1Box = Box.createHorizontalBox();
 		Option1Box.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
-		JRadioButton Option1Radio = new JRadioButton(LABEL_INTERNAL_TEXT + ":");
+		final JRadioButton Option1Radio = new JRadioButton(LABEL_INTERNAL_TEXT + ":");
 		Option1Radio.setFont(GlobalFont);
 		Option1Radio.setSelected(true);
 		Option1Box.add(Option1Radio);
@@ -165,7 +164,7 @@ public class MainInterface {
 		//RadioButton2 and TextField
 		Box Option2Box = Box.createHorizontalBox();
 		Option2Box.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
-		JRadioButton Option2Radio = new JRadioButton(LABEL_EXTERNAL_TEXT + "(.xml):");
+		final JRadioButton Option2Radio = new JRadioButton(LABEL_EXTERNAL_TEXT + "(.xml):");
 		Option2Radio.setFont(GlobalFont);
 		Option2Box.add(Option2Radio);
 		Option2Box.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));

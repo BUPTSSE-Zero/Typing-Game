@@ -25,13 +25,19 @@ public class ScrollView extends JScrollPane
     public void paint(Graphics g)
     {
         //System.out.println("Scroll View Repaint. Area Height=" + g.getClipBounds().height);
-        if(ContentBox != null && g.getClipBounds().height > ContentHeight + 2 && g.getClipBounds().height != CurrentHeight)
+        if(ContentBox != null && g.getClipBounds().height != CurrentHeight)
         {
             CurrentHeight = g.getClipBounds().height;
             if(FillComponent != null)
+            {
                 ContentBox.remove(FillComponent);
-            FillComponent = Box.createRigidArea(new Dimension(0, g.getClipBounds().height - ContentHeight - 2));
-            ContentBox.add(FillComponent);
+                FillComponent = null;
+            }
+            if(g.getClipBounds().height > ContentHeight + 2)
+            {
+            	FillComponent = Box.createRigidArea(new Dimension(0, g.getClipBounds().height - ContentHeight - 2));
+            	ContentBox.add(FillComponent);
+            }
         }
         super.paint(g);
         g.setColor(BorderColor);
