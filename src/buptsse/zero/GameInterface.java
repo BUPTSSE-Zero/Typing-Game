@@ -1,10 +1,6 @@
 package buptsse.zero;
 
-import jdk.internal.util.xml.impl.Input;
-
 import javax.swing.*;
-import javax.swing.event.CaretEvent;
-import javax.swing.event.CaretListener;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -17,6 +13,7 @@ public class GameInterface
     private Box MainBox = null;
     private int WindowTotalHeight = 0;
     private boolean PlayingFlag = false;
+    private boolean StartFlag = false;
 
     private final int VERTICAL_MARGIN = 10;
     private final int HORIZONTAL_MARGIN = 10;
@@ -30,9 +27,14 @@ public class GameInterface
 
     public static String LABEL_QUIT = "Quit";
     public static String LABEL_START = "Start";
+    public static String LABEL_CONTINUE = "Continue";
     public static String LABEL_FINISH = "Finish";
     public static String LABEL_PAUSE = "Pause";
     public static String LABEL_REPLAY = "Replay";
+    public static String MESSAGE_INPUT_ERROR = "Your input contains error(s), please check it!";
+    public static String MESSAGE_CONGRATULATION = "Congratulation!";
+    public static String MESSAGE_COMPLETE = "You haved completed all inputs correctly.";
+    public static String MESSAGE_PLAYER_TIME = "Your time";
 
     private void initWindow() {
         MainBox = Box.createVerticalBox();
@@ -46,17 +48,20 @@ public class GameInterface
         TitleLable.setFont(MainInterface.GlobalFont.deriveFont(Font.BOLD, TITLE_FONT_SIZE));
         TitleBox.add(TitleLable);
         TitleBox.add(Box.createHorizontalGlue());
-        JLabel PlayerNameLabel = new JLabel(PlayerName, new ImageIcon(GameInterface.class.getResource("res/icon/icon-person.png")), 0);
+        final JLabel PlayerNameLabel = new JLabel(PlayerName, new ImageIcon(GameInterface.class.getResource("res/icon/icon-person.png")), 0);
         PlayerNameLabel.setFont(MainInterface.GlobalFont);
         TitleBox.add(PlayerNameLabel);
         TitleBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
-        JLabel TimeLabel = new JLabel("0:00", new ImageIcon(GameInterface.class.getResource("res/icon/icon-clock.png")), 0);
+        final JLabel TimeLabel = new JLabel("00:00:00", new ImageIcon(GameInterface.class.getResource("res/icon/icon-clock.png")), 0);
         TimeLabel.setFont(MainInterface.GlobalFont);
         TitleBox.add(TimeLabel);
         TitleBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
         MainBox.add(TitleBox);
         MainBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));
         GameWindow.add(MainBox, BorderLayout.NORTH);
+
+        final Chronometer GameChronometer = new Chronometer(TimeLabel);
+        GameChronometer.reset();
 
         //Load Text
         final AutoCheckDocument AutoChecker[] = new AutoCheckDocument[MultiRowText.size()];
@@ -138,7 +143,6 @@ public class GameInterface
         GameWindow.add(ButtonAreaBox, BorderLayout.SOUTH);
 
         //Key Listener
-        InputField[0].requestFocus();
         for(int i = 0; i < InputField.length; i++)
         {
             final JTextField PreInput;
@@ -153,31 +157,43 @@ public class GameInterface
                 NextInput = InputField[0];
             InputField[i].addKeyListener(new KeyListener() {
                 @Override
-                public void keyTyped(KeyEvent e) {
-                    if(PlayingFlag == false)
+                public void keyTyped(KeyEvent e)
+                {
+                    if(!PlayingFlag)
                     {
                         if(e.getKeyChar() == KeyEvent.VK_ENTER)
-                        {
                             ControlButton.doClick();
-                            FinishButton.setEnabled(true);
-                            PlayingFlag = true;
-                        }
                         else
                         {
                             e.consume();
                             return;
                         }
                     }
+                    else if(PlayingFlag && e.getKeyChar() == KeyEvent.VK_ENTER)
+                        FinishButton.doClick();
                 }
 
                 @Override
                 public void keyPressed(KeyEvent e) {
-                    if (e.isControlDown() || e.isAltDown())
+                    if (e.isControlDown() || e.isAltDown())         //exclude the Ctrl and Alt keys
+                    {
                         e.consume();
+                        return;
+                    }
                     if (e.getKeyCode() == KeyEvent.VK_DOWN)
                         NextInput.requestFocus();
                     else if(e.getKeyCode() == KeyEvent.VK_UP)
                         PreInput.requestFocus();
+                    else if(PlayingFlag == false)
+                    {
+                        if(e.getKeyChar() != KeyEvent.VK_ENTER)
+                            e.consume();
+                    }
+                    else
+                    {
+                        if(e.getKeyCode() == KeyEvent.VK_ESCAPE)
+                            ControlButton.doClick();
+                    }
                 }
 
                 @Override
@@ -187,6 +203,95 @@ public class GameInterface
                 }
             });
         }
+
+        //Button Listener
+        ControlButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if(!StartFlag)
+                {
+                    StartFlag = true;
+                    PlayingFlag = true;
+                    FinishButton.setEnabled(true);
+                    GameChronometer.start();
+                    ControlButton.setText(LABEL_PAUSE);
+                    ControlButton.setIcon(IconPause);
+                }
+                else if(StartFlag && PlayingFlag)
+                {
+                    GameChronometer.pause();
+                    PlayingFlag = false;
+                    ControlButton.setIcon(IconStart);
+                    ControlButton.setText(LABEL_CONTINUE);
+                }
+                else if(StartFlag && !PlayingFlag)
+                {
+                    GameChronometer.start();
+                    PlayingFlag = true;
+                    ControlButton.setText(LABEL_PAUSE);
+                    ControlButton.setIcon(IconPause);
+                }
+            }
+        });
+
+        QuitButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                GameChronometer.pause();
+                GameWindow.dispose();
+            }
+        });
+
+        ReplayButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for(JTextField input : InputField)
+                    input.setText("");
+                ControlButton.setText(LABEL_START);
+                ControlButton.setIcon(IconStart);
+                ControlButton.setEnabled(true);
+                FinishButton.setEnabled(false);
+                GameChronometer.reset();
+                StartFlag = PlayingFlag = false;
+            }
+        });
+
+        FinishButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e)
+            {
+                boolean ContinueFlag = false;
+                if(PlayingFlag) {
+                    GameChronometer.pause();
+                    ContinueFlag = true;
+                }
+                for(AutoCheckDocument checker : AutoChecker)
+                {
+                    if(checker.getCheckStatus() == false)
+                    {
+                        JOptionPane.showMessageDialog(GameWindow, MESSAGE_INPUT_ERROR, MainInterface.PRODUCT_NAME, JOptionPane.CLOSED_OPTION,
+                                new ImageIcon(MainInterface.class.getResource("res/icon/dialog-error.png")));
+                        if(ContinueFlag)
+                            GameChronometer.start();
+                        return;
+                    }
+                }
+                JOptionPane.showMessageDialog(GameWindow, MESSAGE_CONGRATULATION + PlayerNameLabel.getText() + ".\n" + MESSAGE_COMPLETE + '\n' + MESSAGE_PLAYER_TIME
+                                + ':' + GameChronometer.getTimeString() + '.',
+                        MainInterface.PRODUCT_NAME, JOptionPane.OK_OPTION,
+                        new ImageIcon(MainInterface.class.getResource("res/icon/dialog-information.png")));
+                ControlButton.setEnabled(false);
+                FinishButton.setEnabled(false);
+            }
+        });
+
+        //Window Close Listener
+        GameWindow.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                GameChronometer.pause();
+            }
+        });
 
         WindowTotalHeight = MainBox.getMinimumSize().height + ScrollBox.getMinimumSize().height + ButtonAreaBox.getMinimumSize().height + 20;
     }

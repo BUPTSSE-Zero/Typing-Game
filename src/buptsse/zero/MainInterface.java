@@ -61,7 +61,7 @@ public class MainInterface {
 		try
 		{
 			String OSName = System.getProperty("os.name");
-			if(OSName.toLowerCase().startsWith("win"))
+			if(OSName.toLowerCase().contains("windows"))
 			{
 				OSInfo = SystemPlatform.OS_WINDOWS;
 				UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -95,6 +95,8 @@ public class MainInterface {
             }
         }
 	}
+
+
 	
 	private static void initWindow()
 	{

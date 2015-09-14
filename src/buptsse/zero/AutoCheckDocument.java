@@ -3,7 +3,6 @@ package buptsse.zero;
 import com.sun.istack.internal.NotNull;
 
 import javax.swing.*;
-import javax.swing.text.AbstractDocument;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.PlainDocument;
 
