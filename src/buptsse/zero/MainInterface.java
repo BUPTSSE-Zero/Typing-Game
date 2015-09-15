@@ -82,7 +82,7 @@ public class MainInterface {
             Object key = KeyVector.nextElement();
             Object value = UIManager.get(key);
             if (value instanceof FontUIResource) {
-                System.out.println("Key:" + key + " Font:" + ((Font) value).getFamily());
+                //System.out.println("Key:" + key + " Font:" + ((Font) value).getFamily());
                 if(GlobalFont == null)
                     GlobalFont = ((FontUIResource) value).deriveFont(TEXT_FONT_SIZE);
                 if(OSInfo == SystemPlatform.OS_LINUX && GlobalFont != null)

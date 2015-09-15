@@ -66,7 +66,7 @@ public class GameInterface
         //Load Text
         final AutoCheckDocument AutoChecker[] = new AutoCheckDocument[MultiRowText.size()];
         JLabel TextLabel[] = new JLabel[MultiRowText.size()];
-        JTextField InputField[] = new JTextField[MultiRowText.size()];
+        final JTextField InputField[] = new JTextField[MultiRowText.size()];
         ScrollView ScrollTextView = new ScrollView();
         Box ScrollBox = Box.createVerticalBox();
         ScrollBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));

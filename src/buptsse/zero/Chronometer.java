@@ -44,7 +44,7 @@ public class Chronometer implements Runnable
         }
         StopFlag = false;
         RunningFlag = false;
-        System.out.println("Thread exit.");
+        //System.out.println("Thread exit.");
     }
 
     public String getTimeString()
