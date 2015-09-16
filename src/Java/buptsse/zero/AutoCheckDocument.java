@@ -1,7 +1,5 @@
 package buptsse.zero;
 
-import com.sun.istack.internal.NotNull;
-
 import javax.swing.*;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.PlainDocument;
@@ -39,7 +37,7 @@ public class AutoCheckDocument extends PlainDocument
         }
     }
 
-    public AutoCheckDocument(@NotNull String CheckText,@NotNull JLabel IndicatorLabel,@NotNull ImageIcon OkIcon,@NotNull ImageIcon ErrorIcon)
+    public AutoCheckDocument(String CheckText,JLabel IndicatorLabel,ImageIcon OkIcon,ImageIcon ErrorIcon)
     {
         this.CheckText = CheckText;
         this.IndicatorLabel = IndicatorLabel;

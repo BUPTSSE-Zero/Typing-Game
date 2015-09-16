@@ -5,4 +5,5 @@
 	<text>The name of root element is "typing-game".</text>
 	<text>Each element named "text" in the root element represents the text in each row.</text>
 	<text>This is the Row 5 text.</text>
+	<text>这是第六行文字。</text>
 </typing-game>

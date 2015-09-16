@@ -1,7 +1,5 @@
 package buptsse.zero;
 
-import com.sun.istack.internal.NotNull;
-
 import javax.swing.*;
 import java.text.DecimalFormat;
 
@@ -14,7 +12,7 @@ public class Chronometer implements Runnable
     private Object DummyObject = new Object();
     private Thread ChronometerThread = null;
 
-    public Chronometer(@NotNull JLabel TimeLabel)
+    public Chronometer(JLabel TimeLabel)
     {
         this.TimeLabel = TimeLabel;
     }

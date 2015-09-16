@@ -22,3 +22,6 @@ hs_err_pid*
 
 #Output Folder
 out/
+
+#Build Directory
+build*/

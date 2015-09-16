@@ -1,5 +1,6 @@
 package buptsse.zero;
 
+import buptsse.zero.GlobalSettings;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -20,22 +21,6 @@ public class GameInterface
     private final int WINDOW_WIDTH = 1000;
     private static final float TITLE_FONT_SIZE = (float)30.0;
 
-    private static ImageIcon IconOK = null;
-    private static ImageIcon IconError = null;
-    private static ImageIcon IconStart = null;
-    private static ImageIcon IconPause = null;
-
-    public static String LABEL_QUIT = "Quit";
-    public static String LABEL_START = "Start";
-    public static String LABEL_CONTINUE = "Continue";
-    public static String LABEL_FINISH = "Finish";
-    public static String LABEL_PAUSE = "Pause";
-    public static String LABEL_REPLAY = "Replay";
-    public static String MESSAGE_INPUT_ERROR = "Your input contains error(s), please check it!";
-    public static String MESSAGE_CONGRATULATION = "Congratulation!";
-    public static String MESSAGE_COMPLETE = "You haved completed all inputs correctly.";
-    public static String MESSAGE_PLAYER_TIME = "Your time";
-
     private void initWindow() {
         MainBox = Box.createVerticalBox();
         MainBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));
@@ -44,16 +29,16 @@ public class GameInterface
         Box TitleBox = Box.createHorizontalBox();
         TitleBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
         TitleBox.setAlignmentY((float) 1.0);
-        JLabel TitleLable = new JLabel(MainInterface.PRODUCT_NAME);
-        TitleLable.setFont(MainInterface.GlobalFont.deriveFont(Font.BOLD, TITLE_FONT_SIZE));
+        JLabel TitleLable = new JLabel(GlobalSettings.WINDOW_TITLE);
+        TitleLable.setFont(GlobalSettings.GlobalFont.deriveFont(Font.BOLD, TITLE_FONT_SIZE));
         TitleBox.add(TitleLable);
         TitleBox.add(Box.createHorizontalGlue());
-        final JLabel PlayerNameLabel = new JLabel(PlayerName, new ImageIcon(GameInterface.class.getResource("res/icon/icon-person.png")), 0);
-        PlayerNameLabel.setFont(MainInterface.GlobalFont);
+        final JLabel PlayerNameLabel = new JLabel(PlayerName, GlobalSettings.ICON_PERSON, 0);
+        PlayerNameLabel.setFont(GlobalSettings.GlobalFont);
         TitleBox.add(PlayerNameLabel);
         TitleBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
-        final JLabel TimeLabel = new JLabel("00:00:00", new ImageIcon(GameInterface.class.getResource("res/icon/icon-clock.png")), 0);
-        TimeLabel.setFont(MainInterface.GlobalFont);
+        final JLabel TimeLabel = new JLabel("00:00:00", GlobalSettings.ICON_CLOCK, 0);
+        TimeLabel.setFont(GlobalSettings.GlobalFont);
         TitleBox.add(TimeLabel);
         TitleBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
         MainBox.add(TitleBox);
@@ -76,21 +61,21 @@ public class GameInterface
             Box TextLabelBox = Box.createHorizontalBox();
             TextLabelBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
             TextLabel[i] = new JLabel(MultiRowText.get(i));
-            TextLabel[i].setFont(MainInterface.GlobalFont);
+            TextLabel[i].setFont(GlobalSettings.GlobalFont);
             TextLabelBox.add(TextLabel[i]);
             TextLabelBox.add(Box.createHorizontalGlue());
 
             Box InputFieldBox = Box.createHorizontalBox();
             InputFieldBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
             InputField[i] = new JTextField();
-            InputField[i].setFont(MainInterface.GlobalFont);
+            InputField[i].setFont(GlobalSettings.GlobalFont);
             InputField[i].setMargin(new Insets(2, 4, 2, 4));
             InputFieldBox.add(InputField[i]);
             InputFieldBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
-            JLabel IconIndicator = new JLabel(IconError);
+            JLabel IconIndicator = new JLabel(GlobalSettings.ICON_ERROR);
             InputFieldBox.add(IconIndicator);
             InputFieldBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
-            AutoChecker[i] = new AutoCheckDocument(MultiRowText.get(i), IconIndicator, IconOK, IconError);
+            AutoChecker[i] = new AutoCheckDocument(MultiRowText.get(i), IconIndicator, GlobalSettings.ICON_OK, GlobalSettings.ICON_ERROR);
             InputField[i].setDocument(AutoChecker[i]);
 
             ScrollBox.add(TextLabelBox);
@@ -113,27 +98,27 @@ public class GameInterface
         Box ButtonBox = Box.createHorizontalBox();
         ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
 
-        JButton QuitButton = new JButton(LABEL_QUIT, new ImageIcon(GameInterface.class.getResource("res/icon/icon-quit.png")));
-        QuitButton.setFont(MainInterface.GlobalFont);
+        JButton QuitButton = new JButton(GlobalSettings.LABEL_QUIT, GlobalSettings.ICON_QUIT);
+        QuitButton.setFont(GlobalSettings.GlobalFont);
         QuitButton.setMargin(new Insets(2, 10, 2, 10));
         ButtonBox.add(QuitButton);
         ButtonBox.add(Box.createHorizontalGlue());
 
-        final JButton ControlButton = new JButton(LABEL_START, new ImageIcon(GameInterface.class.getResource("res/icon/icon-start.png")));
-        ControlButton.setFont(MainInterface.GlobalFont);
+        final JButton ControlButton = new JButton(GlobalSettings.LABEL_START, GlobalSettings.ICON_START);
+        ControlButton.setFont(GlobalSettings.GlobalFont);
         ControlButton.setMargin(new Insets(2, 40, 2, 40));
         ButtonBox.add(ControlButton);
         ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
 
-        final JButton FinishButton = new JButton(LABEL_FINISH, new ImageIcon(GameInterface.class.getResource("res/icon/icon-finish.png")));
-        FinishButton.setFont(MainInterface.GlobalFont);
+        final JButton FinishButton = new JButton(GlobalSettings.LABEL_FINISH, GlobalSettings.ICON_FINISH);
+        FinishButton.setFont(GlobalSettings.GlobalFont);
         FinishButton.setMargin(new Insets(2, 15, 2, 15));
         FinishButton.setEnabled(false);
         ButtonBox.add(FinishButton);
         ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
 
-        final JButton ReplayButton = new JButton(LABEL_REPLAY, new ImageIcon(GameInterface.class.getResource("res/icon/icon-replay.png")));
-        ReplayButton.setFont(MainInterface.GlobalFont);
+        final JButton ReplayButton = new JButton(GlobalSettings.LABEL_REPLAY, GlobalSettings.ICON_REPLAY);
+        ReplayButton.setFont(GlobalSettings.GlobalFont);
         ReplayButton.setMargin(new Insets(2, 10, 2, 10));
         ButtonBox.add(ReplayButton);
         ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
@@ -214,22 +199,22 @@ public class GameInterface
                     PlayingFlag = true;
                     FinishButton.setEnabled(true);
                     GameChronometer.start();
-                    ControlButton.setText(LABEL_PAUSE);
-                    ControlButton.setIcon(IconPause);
+                    ControlButton.setText(GlobalSettings.LABEL_PAUSE);
+                    ControlButton.setIcon(GlobalSettings.ICON_PAUSE);
                 }
                 else if(StartFlag && PlayingFlag)
                 {
                     GameChronometer.pause();
                     PlayingFlag = false;
-                    ControlButton.setIcon(IconStart);
-                    ControlButton.setText(LABEL_CONTINUE);
+                    ControlButton.setIcon(GlobalSettings.ICON_START);
+                    ControlButton.setText(GlobalSettings.LABEL_CONTINUE);
                 }
                 else if(StartFlag && !PlayingFlag)
                 {
                     GameChronometer.start();
                     PlayingFlag = true;
-                    ControlButton.setText(LABEL_PAUSE);
-                    ControlButton.setIcon(IconPause);
+                    ControlButton.setText(GlobalSettings.LABEL_PAUSE);
+                    ControlButton.setIcon(GlobalSettings.ICON_PAUSE);
                 }
             }
         });
@@ -247,8 +232,8 @@ public class GameInterface
             public void actionPerformed(ActionEvent e) {
                 for(JTextField input : InputField)
                     input.setText("");
-                ControlButton.setText(LABEL_START);
-                ControlButton.setIcon(IconStart);
+                ControlButton.setText(GlobalSettings.LABEL_START);
+                ControlButton.setIcon(GlobalSettings.ICON_START);
                 ControlButton.setEnabled(true);
                 FinishButton.setEnabled(false);
                 GameChronometer.reset();
@@ -269,17 +254,16 @@ public class GameInterface
                 {
                     if(checker.getCheckStatus() == false)
                     {
-                        JOptionPane.showMessageDialog(GameWindow, MESSAGE_INPUT_ERROR, MainInterface.PRODUCT_NAME, JOptionPane.CLOSED_OPTION,
-                                new ImageIcon(MainInterface.class.getResource("res/icon/dialog-error.png")));
+                        JOptionPane.showMessageDialog(GameWindow, GlobalSettings.MESSAGE_INPUT_ERROR, GlobalSettings.PRODUCT_NAME, JOptionPane.CLOSED_OPTION,
+                                                        GlobalSettings.ICON_DIALOG_ERROR);
                         if(ContinueFlag)
                             GameChronometer.start();
                         return;
                     }
                 }
-                JOptionPane.showMessageDialog(GameWindow, MESSAGE_CONGRATULATION + PlayerNameLabel.getText() + ".\n" + MESSAGE_COMPLETE + '\n' + MESSAGE_PLAYER_TIME
+                JOptionPane.showMessageDialog(GameWindow, GlobalSettings.MESSAGE_CONGRATULATION + PlayerNameLabel.getText() + ".\n" + GlobalSettings.MESSAGE_COMPLETE + '\n' + GlobalSettings.MESSAGE_PLAYER_TIME
                                 + ':' + GameChronometer.getTimeString() + '.',
-                        MainInterface.PRODUCT_NAME, JOptionPane.OK_OPTION,
-                        new ImageIcon(MainInterface.class.getResource("res/icon/dialog-information.png")));
+                        GlobalSettings.WINDOW_TITLE, JOptionPane.OK_OPTION,  GlobalSettings.ICON_DIALOG_INFO);
                 ControlButton.setEnabled(false);
                 FinishButton.setEnabled(false);
             }
@@ -301,26 +285,18 @@ public class GameInterface
     {
         this.PlayerName = PlayerName;
         this.MultiRowText = text;
-        if(IconError == null)
-            IconError = new ImageIcon(GameInterface.class.getResource("res/icon/icon-error.png"));
-        if(IconOK == null)
-            IconOK = new ImageIcon(GameInterface.class.getResource("res/icon/icon-ok.png"));
-        if(IconStart == null)
-            IconStart = new ImageIcon(GameInterface.class.getResource("res/icon/icon-start.png"));
-        if(IconPause == null)
-            IconPause = new ImageIcon(GameInterface.class.getResource("res/icon/icon-pause.png"));
     }
 
     public void show()
     {
-        GameWindow = new JFrame(MainInterface.PRODUCT_NAME);
+        GameWindow = new JFrame(GlobalSettings.PRODUCT_NAME);
         initWindow();
         GameWindow.setVisible(true);
         WindowTotalHeight += GameWindow.getInsets().top;
-        if(WindowTotalHeight > MainInterface.ScreenSize.height - 50)
-            WindowTotalHeight = MainInterface.ScreenSize.height - 50;
+        if(WindowTotalHeight > GlobalSettings.ScreenSize.height - 50)
+            WindowTotalHeight = GlobalSettings.ScreenSize.height - 50;
         GameWindow.setSize(WINDOW_WIDTH, WindowTotalHeight);
-        GameWindow.setLocation((MainInterface.ScreenSize.width - GameWindow.getWidth()) / 2, (MainInterface.ScreenSize.height - GameWindow.getHeight()) / 2);
+        GameWindow.setLocation((GlobalSettings.ScreenSize.width - GameWindow.getWidth()) / 2, (GlobalSettings.ScreenSize.height - GameWindow.getHeight()) / 2);
     }
 }
 
