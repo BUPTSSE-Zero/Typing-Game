@@ -27,17 +27,33 @@ add_custom_target(Typing-Game-Java ALL
 
 include_directories($ENV{JAVA_HOME}/include)
 if(WIN32)
-include_directories($ENV{JAVA_HOME}/include/win32)
+	include_directories($ENV{JAVA_HOME}/include/win32)
 endif()
 
-link_directories($ENV{JAVA_HOME}/lib)
-if(NOT MSVC)
-add_definitions(-D_JNI_IMPLEMENTATION_)
-link_libraries(jvm)
+if(MINGW)
+	link_libraries(comctl32)
+	set(CMAKE_EXE_LINKER_FLAGS "-mwindows")
 endif()
 
 set(LAUNCHER_SOURCE_FILES
+		C-Launcher/LauncherTool.h
 		C-Launcher/LauncherMain.c)
+if(WIN32)
+	list(APPEND LAUNCHER_SOURCE_FILES C-Launcher/LauncherTool-Win.c)
+endif()
+
+# Add resource files
+if(WIN32)
+    if(MINGW)
+        set(CMAKE_RC_COMPILER_INIT windres)
+        enable_language(RC)
+        set(CMAKE_RC_COMPILE_OBJECT "<CMAKE_RC_COMPILER> -O coff -i <SOURCE> -o <OBJECT>")
+		list(APPEND LAUNCHER_SOURCE_FILES C-Launcher/Typing-Game-Launcher.rc)
+	elseif(MSVC)
+		list(APPEND LAUNCHER_SOURCE_FILES C-Launcher/Typing-Game-Launcher.rc)
+	endif()
+endif()
+
 add_executable(Typing-Game-Launcher ${LAUNCHER_SOURCE_FILES})			
 add_dependencies(Typing-Game-Launcher Typing-Game-Java)
 					
