@@ -1,4 +1,4 @@
-#ifndef LAUNCHER_TOOL_H
+﻿#ifndef LAUNCHER_TOOL_H
 #define LAUNCHER_TOOL_H
 #ifdef _WIN32
 #define FILE_SEPARATOR '\\'
@@ -9,6 +9,7 @@
 #endif
 
 #define JAVA_HOME "JAVA_HOME"
+#define PATH "PATH"
 
 #include <jni.h>
 

@@ -1,4 +1,4 @@
-#include "LauncherTool.h"
+﻿#include "LauncherTool.h"
 #include <windows.h>
 #include <winreg.h>
 #include <string.h>
@@ -34,6 +34,28 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 	if (GetEnvironmentVariable(JAVA_HOME, java_home, sizeof(java_home)) > 0)
 	{
 		printf("JAVA_HOME=%s\n", java_home);
+		int i, len = strlen(java_home), pos = 0;
+		for (i = 0; i <= len; i++)
+		{
+			if (java_home[i] == PATH_SEPARATOR || i == len)
+			{
+				if (sub_str(java_home, pos, i - pos, java_home_path))
+				{
+					if (java_home_path[strlen(java_home_path) - 1] == FILE_SEPARATOR)
+						java_home_path[strlen(java_home_path) - 1] = '\0';
+					jvm_dll_path = find_jvm_dll(java_home_path);
+					if (jvm_dll_path != NULL)
+					{
+						find_flag = JNI_TRUE;
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	if (!find_flag && GetEnvironmentVariable(PATH, java_home, sizeof(java_home)) > 0)
+	{
 		int i, len = strlen(java_home), pos = 0;
 		for (i = 0; i <= len; i++)
 		{
@@ -91,7 +113,7 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 	vm_options[0].optionString = jvm_class_path;
 	vm_options[1].optionString = "-Dfile.encoding=utf-8";								//set encoding of runtime to UTF-8
 	memset(&vm_init_args, 0, sizeof(vm_init_args));
-	vm_init_args.version = JNI_VERSION_1_6;
+	vm_init_args.version = JNI_VERSION_1_8;
 	vm_init_args.nOptions = 2;
 	vm_init_args.options = vm_options;
 
@@ -103,6 +125,11 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 char* find_jvm_dll(const char* java_home_path)
 {
 	char* path = malloc(sizeof(char) * MAX_LEN);
+	strcpy(path, java_home_path);
+	strcat(path, "\\jvm.dll");
+	if (check_file_exist(path))
+		return path;
+
 	strcpy(path, java_home_path);
 	strcat(path, JVM_DLL_CLIENT_PATH);
 	if (check_file_exist(path))

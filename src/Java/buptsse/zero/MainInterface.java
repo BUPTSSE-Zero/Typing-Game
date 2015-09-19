@@ -306,8 +306,13 @@ public class MainInterface {
 										GlobalSettings.ICON_DIALOG_ERROR);
 	}
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		// TODO Auto-generated method stub
+		MainInterface.show();
+	}*/
+
+	public static void show()
+	{
 		GlobalSettings.loadIcon();
 		GlobalSettings.setUI();
 		MainWindow = new JFrame();
@@ -319,5 +324,4 @@ public class MainInterface {
 		MainWindow.setSize(new Dimension(WINDOW_WIDTH, TotalHeight));
 		MainWindow.setLocation((GlobalSettings.ScreenSize.width - MainWindow.getWidth()) / 2, (GlobalSettings.ScreenSize.height - MainWindow.getHeight()) / 2);
 	}
-
 }

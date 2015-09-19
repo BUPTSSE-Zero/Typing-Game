@@ -2,6 +2,7 @@ package buptsse.zero;
 
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
+import javax.xml.soap.Text;
 import java.awt.*;
 import java.util.Enumeration;
 
@@ -95,7 +96,6 @@ public class GlobalSettings
             {
                 OSInfo = SystemPlatform.OS_WINDOWS;
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-                GlobalFont = Font.decode("Microsoft YaHei UI").deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
             }
             else
             {
@@ -103,26 +103,32 @@ public class GlobalSettings
                 UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
             }
         }catch(Exception e){
+            e.printStackTrace();
             System.err.println("Can't load the system theme or the specific font.");
-            GlobalFont = Font.decode("Default").deriveFont(TEXT_FONT_SIZE);
         }
-        Enumeration<Object> KeyVector = UIManager.getDefaults().keys();
-        while(KeyVector.hasMoreElements())
+        if(GlobalFont == null)
         {
-            Object key = KeyVector.nextElement();
-            Object value = UIManager.get(key);
-            if (value instanceof FontUIResource) {
-                //System.out.println("Key:" + key + " Font:" + ((Font) value).getFamily());
-                if(GlobalFont == null)
-                    GlobalFont = ((FontUIResource) value).deriveFont(TEXT_FONT_SIZE);
-                if(OSInfo == SystemPlatform.OS_LINUX && GlobalFont != null)
-                    break;
-                else if(OSInfo == SystemPlatform.OS_WINDOWS && key.toString().contains("FileChooser"))
-                {
-                    GlobalFont = ((FontUIResource)value).deriveFont(TEXT_FONT_SIZE);
+            Enumeration<Object> KeyVector = UIManager.getDefaults().keys();
+            while (KeyVector.hasMoreElements()) {
+                Object key = KeyVector.nextElement();
+                Object value = UIManager.get(key);
+                if (value instanceof FontUIResource) {
+                    //System.out.println("Key:" + key + " Font:" + ((Font) value).getFamily());
+                    GlobalFont = ((FontUIResource) value).deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
                     break;
                 }
             }
+        }
+    }
+
+    public static void setUIFont(String DefaultFontFamily)
+    {
+        //System.out.println("Default Font:" + DefaultFontFamily);
+        try{
+            GlobalFont = Font.decode(DefaultFontFamily).deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
+        }catch (Exception e){
+            e.printStackTrace();
+            GlobalFont = null;
         }
     }
 
