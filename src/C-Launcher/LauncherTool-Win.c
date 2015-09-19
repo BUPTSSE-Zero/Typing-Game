@@ -113,7 +113,7 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 	vm_options[0].optionString = jvm_class_path;
 	vm_options[1].optionString = "-Dfile.encoding=utf-8";								//set encoding of runtime to UTF-8
 	memset(&vm_init_args, 0, sizeof(vm_init_args));
-	vm_init_args.version = JNI_VERSION_1_8;
+	vm_init_args.version = JNI_VERSION_1_6;
 	vm_init_args.nOptions = 2;
 	vm_init_args.options = vm_options;
 
