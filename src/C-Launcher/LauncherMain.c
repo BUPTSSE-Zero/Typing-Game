@@ -15,7 +15,7 @@
 
 #define ERROR_JVM_CREATE_FAILED "Can not create a JVM to run this program.Please check if you have \
 																installed JDK or JRE.If you have installed either of them, please check \
-																if jvm.dll(Windows) or jvm.so(Linux) exists in PATH or the directory where you installed JDK(JRE)."
+																if jvm.dll(Windows) or libjvm.so(Linux) exists in PATH or the directory where you installed JDK(JRE)."
 
 #define ERROR_MAIN_CLASS_NOT_FOUND "Can not find the class buptsse.zero.MainInterface in Typing-Game.jar"
 #define ERROR_MAIN_METHOD_NOT_FOUND "Can't find the entry method \"show()\" in class buptsse.zero.MainInterface"

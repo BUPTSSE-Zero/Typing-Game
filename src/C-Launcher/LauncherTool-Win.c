@@ -9,20 +9,8 @@
 #define JRE_KEY "Software\\JavaSoft\\Java Runtime Environment"
 
 char* find_jvm_dll(const char* java_home_path);
-int check_file_exist(const char* file_path);
 char* find_public_jre();
 int get_string_from_registry(HKEY key, const char* name, char* buf, unsigned int buf_size);
-
-int sub_str(const char* str, int start_pos, int len, char* target_str)
-{
-	if (len <= 0)
-		return JNI_FALSE;
-	int c = 0, i;
-	for (i = start_pos; i < start_pos + len; i++)
-		target_str[c++] = str[i];
-	target_str[c] = '\0';
-	return JNI_TRUE;
-}
 
 int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 {
@@ -91,7 +79,7 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 
 	if (!find_flag)
 		return JNI_FALSE;
-	
+
 	HMODULE jvm_dll = LoadLibrary(jvm_dll_path);
 	if (jvm_dll == NULL)
 		return JNI_FALSE;
@@ -118,7 +106,10 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 	vm_init_args.options = vm_options;
 
 	if (jvm_create_proc(java_vm, (void**)jni_env, (void*)&vm_init_args) != 0)
+  {
+    fprintf(stderr, "Create JVM failed.\n");
 		return JNI_FALSE;
+  }
 	return JNI_TRUE;
 }
 
@@ -156,17 +147,6 @@ char* find_jvm_dll(const char* java_home_path)
 	return NULL;
 }
 
-int check_file_exist(const char* file_path)
-{
-	FILE* fp = fopen(file_path, "r");
-	if (fp == NULL)
-		return JNI_FALSE;
-	else
-	{
-		fclose(fp);
-		return JNI_TRUE;
-	}
-}
 
 char* find_public_jre()
 {
@@ -177,7 +157,7 @@ char* find_public_jre()
 	if (RegOpenKeyEx(HKEY_LOCAL_MACHINE, JRE_KEY, 0, KEY_READ, &key) != 0)
 		return NULL;
 
-	if (!get_string_from_registry(key, "CurrentVersion", version, sizeof(version))) 
+	if (!get_string_from_registry(key, "CurrentVersion", version, sizeof(version)))
 	{
 		RegCloseKey(key);
 		return NULL;
@@ -191,7 +171,7 @@ char* find_public_jre()
 	}
 
 	char* path = malloc(sizeof(char) * MAX_LEN);
-	if (!get_string_from_registry(subkey, "JavaHome", path, MAX_LEN)) 
+	if (!get_string_from_registry(subkey, "JavaHome", path, MAX_LEN))
 	{
 		RegCloseKey(key);
 		RegCloseKey(subkey);
@@ -208,7 +188,7 @@ int get_string_from_registry(HKEY key, const char* name, char* buf, unsigned int
 {
 	DWORD type, size;
 
-	if (RegQueryValueEx(key, name, NULL, &type, NULL, &size) == 0 && type == REG_SZ && (size < (unsigned int)buf_size)) 
+	if (RegQueryValueEx(key, name, NULL, &type, NULL, &size) == 0 && type == REG_SZ && (size < (unsigned int)buf_size))
 	{
 		if (RegQueryValueEx(key, name, NULL, NULL, buf, &size) == 0)
 			return JNI_TRUE;

@@ -28,18 +28,24 @@ add_custom_target(Typing-Game-Java ALL
 include_directories($ENV{JAVA_HOME}/include)
 if(WIN32)
 	include_directories($ENV{JAVA_HOME}/include/win32)
-endif()
-
-if(MINGW)
-	link_libraries(comctl32)
-	set(CMAKE_EXE_LINKER_FLAGS "-mwindows")
+elseif(UNIX)
+	include_directories($ENV{JAVA_HOME}/include/linux)
 endif()
 
 set(LAUNCHER_SOURCE_FILES
 		C-Launcher/LauncherTool.h
+		C-Launcher/LauncherTool-Common.c
 		C-Launcher/LauncherMain.c)
 if(WIN32)
 	list(APPEND LAUNCHER_SOURCE_FILES C-Launcher/LauncherTool-Win.c)
+	link_libraries(comctl32)
+	if(MINGW)
+		link_libraries(comctl32)
+		set(CMAKE_EXE_LINKER_FLAGS "-mwindows")
+	endif()	
+else()
+	list(APPEND LAUNCHER_SOURCE_FILES C-Launcher/LauncherTool-Linux.c)
+	link_libraries(dl)
 endif()
 
 # Add resource files

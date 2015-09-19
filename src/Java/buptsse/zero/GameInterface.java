@@ -12,6 +12,8 @@ public class GameInterface
     private ArrayList<String> MultiRowText;
     private JFrame GameWindow = null;
     private Box MainBox = null;
+    private Box ScrollBox = null;
+    private Box ButtonAreaBox = null;
     private int WindowTotalHeight = 0;
     private boolean PlayingFlag = false;
     private boolean StartFlag = false;
@@ -53,7 +55,7 @@ public class GameInterface
         JLabel TextLabel[] = new JLabel[MultiRowText.size()];
         final JTextField InputField[] = new JTextField[MultiRowText.size()];
         ScrollView ScrollTextView = new ScrollView();
-        Box ScrollBox = Box.createVerticalBox();
+        ScrollBox = Box.createVerticalBox();
         ScrollBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));
         int TotalHeight = 0;
         for(int i = 0; i < MultiRowText.size(); i++)
@@ -93,7 +95,7 @@ public class GameInterface
         GameWindow.add(ScrollTextView, BorderLayout.CENTER);
 
         //Button Area
-        Box ButtonAreaBox = Box.createVerticalBox();
+        ButtonAreaBox = Box.createVerticalBox();
         ButtonAreaBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));
         Box ButtonBox = Box.createHorizontalBox();
         ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
@@ -276,8 +278,6 @@ public class GameInterface
                 GameChronometer.pause();
             }
         });
-
-        WindowTotalHeight = MainBox.getMinimumSize().height + ScrollBox.getMinimumSize().height + ButtonAreaBox.getMinimumSize().height + 20;
     }
 
 
@@ -292,7 +292,7 @@ public class GameInterface
         GameWindow = new JFrame(GlobalSettings.PRODUCT_NAME);
         initWindow();
         GameWindow.setVisible(true);
-        WindowTotalHeight += GameWindow.getInsets().top;
+        WindowTotalHeight = MainBox.getHeight() + ScrollBox.getHeight() + ButtonAreaBox.getHeight() + GameWindow.getInsets().top;
         if(WindowTotalHeight > GlobalSettings.ScreenSize.height - 50)
             WindowTotalHeight = GlobalSettings.ScreenSize.height - 50;
         GameWindow.setSize(WINDOW_WIDTH, WindowTotalHeight);

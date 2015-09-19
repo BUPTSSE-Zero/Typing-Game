@@ -104,7 +104,7 @@ public class GlobalSettings
             }
         }catch(Exception e){
             e.printStackTrace();
-            System.err.println("Can't load the system theme or the specific font.");
+            System.err.println("Can't load the system theme.");
         }
         if(GlobalFont == null)
         {
@@ -113,9 +113,11 @@ public class GlobalSettings
                 Object key = KeyVector.nextElement();
                 Object value = UIManager.get(key);
                 if (value instanceof FontUIResource) {
-                    //System.out.println("Key:" + key + " Font:" + ((Font) value).getFamily());
-                    GlobalFont = ((FontUIResource) value).deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
-                    break;
+                    if(!((Font) value).getFamily().toLowerCase().equals("dialog") && !((Font) value).getFamily().toLowerCase().equals("system"))
+                    {
+                    	GlobalFont = ((FontUIResource) value).deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
+                    	break;
+                    }
                 }
             }
         }
