@@ -1,6 +1,7 @@
 package buptsse.zero;
 
 import buptsse.zero.GlobalSettings;
+
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
@@ -297,6 +298,7 @@ public class GameInterface
             WindowTotalHeight = GlobalSettings.ScreenSize.height - 50;
         GameWindow.setSize(WINDOW_WIDTH, WindowTotalHeight);
         GameWindow.setLocation((GlobalSettings.ScreenSize.width - GameWindow.getWidth()) / 2, (GlobalSettings.ScreenSize.height - GameWindow.getHeight()) / 2);
+        GameWindow.setExtendedState(JFrame.MAXIMIZED_BOTH);
     }
 }
 

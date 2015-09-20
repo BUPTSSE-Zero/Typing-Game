@@ -1,3 +1,9 @@
+#ifdef _WIN32
+#include <windows.h>
+#else
+#include <gtk/gtk.h>
+#endif //_WIN32
+
 #include "LauncherTool.h"
 #include <dirent.h>
 #include <sys/stat.h>
@@ -21,4 +27,16 @@ int sub_str(const char* str, int start_pos, int len, char* target_str)
 		target_str[c++] = str[i];
 	target_str[c] = '\0';
 	return JNI_TRUE;
+}
+
+void show_error_dialog(const char* error_msg)
+{
+#ifdef _WIN32
+	MessageBox(NULL, error_msg, "Error", MB_ICONERROR | MB_OK);
+#else
+  GtkDialog* dialog = GTK_DIALOG(gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, error_msg));
+  gtk_window_set_title(GTK_WINDOW(dialog), "Error");
+  gtk_dialog_run(dialog);
+  gtk_widget_destroy(GTK_WIDGET(dialog));
+#endif // _WIN32
 }

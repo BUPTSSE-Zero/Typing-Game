@@ -25,11 +25,19 @@ add_custom_target(Typing-Game-Java ALL
 								COMMAND jar cvfm ${EXECUTABLE_OUTPUT_PATH}/Typing-Game.jar ${PROJECT_SOURCE_DIR}/Java/MANIFEST.MF -C ${CLASS_FILE_OUTPUT_PATH} .
 								)
 
-include_directories($ENV{JAVA_HOME}/include)
-if(WIN32)
-	include_directories($ENV{JAVA_HOME}/include/win32)
-elseif(UNIX)
-	include_directories($ENV{JAVA_HOME}/include/linux)
+message(STATUS "Check Java Runtime Environment...")
+find_package(Java REQUIRED)
+
+message(STATUS "Try to find JNI package...")
+find_package(JNI REQUIRED)
+include_directories(${JNI_INCLUDE_DIRS})
+
+if(NOT WIN32)
+	message(STATUS "Try to find GTK+2 modules...")
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(GTK2 gtk+-2.0 REQUIRED)
+	include_directories(${GTK2_INCLUDE_DIRS})
+	link_libraries(${GTK2_LIBRARIES})
 endif()
 
 set(LAUNCHER_SOURCE_FILES

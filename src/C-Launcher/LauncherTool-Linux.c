@@ -13,8 +13,10 @@
 #define JVM_CLIENT_SO_PATH "client"
 #define JVM_SERVER_SO_PATH "server"
 
+typedef jint(JNICALL *JvmCreateFun)(JavaVM**, void**, void*);
+
 char* find_jvm_so(const char* java_home_path);
-void* load_jvm_so(const char* so_path);
+JvmCreateFun load_jvm_so(const char* so_path);
 char* get_arch();
 
 int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
@@ -22,7 +24,7 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
   char* java_home = getenv(JAVA_HOME);
   char java_home_path[MAX_LEN];
   char* jvm_so_path = NULL;
-  void* libjvm = NULL;
+  JvmCreateFun jvm_create_proc = NULL;
   int find_flag = JNI_FALSE;
   int len;
   if(java_home && (len = strlen(java_home)) > 0)
@@ -40,7 +42,7 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 					jvm_so_path = find_jvm_so(java_home_path);
 					if (jvm_so_path != NULL)
 					{
-						if((libjvm = load_jvm_so(jvm_so_path)) != NULL)
+						if((jvm_create_proc = load_jvm_so(jvm_so_path)) != NULL)
 						{
               find_flag = JNI_TRUE;
               break;
@@ -70,7 +72,7 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 					jvm_so_path = find_jvm_so(java_home_path);
 					if (jvm_so_path != NULL)
 					{
-						if((libjvm = load_jvm_so(jvm_so_path)) != NULL)
+						if((jvm_create_proc = load_jvm_so(jvm_so_path)) != NULL)
 						{
               find_flag = JNI_TRUE;
               break;
@@ -83,22 +85,13 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 		}
   }
 
-  if(!find_flag || jvm_so_path == NULL || libjvm == NULL)
+  if(!find_flag || jvm_so_path == NULL || jvm_create_proc == NULL)
   {
     fprintf(stderr, "Can't find %s(%s version).\n", JVM_SO, get_arch());
     return JNI_FALSE;
   }
 
   printf("%s found:%s\n", JVM_SO, jvm_so_path);
-  free(jvm_so_path);
-
-  jint(JNICALL *jvm_create_proc)(JavaVM**, void**, void*) = NULL;
-  jvm_create_proc = dlsym(libjvm, "JNI_CreateJavaVM");
-  if(jvm_create_proc == NULL)
-  {
-    fprintf(stderr, "The entry of the function \"JNI_CreateJavaVM\" can not be found in %s.\n", JVM_SO);
-      return JNI_FALSE;
-  }
 
   JavaVMOption vm_options[2];
 	JavaVMInitArgs vm_init_args;
@@ -117,6 +110,14 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
   {
     fprintf(stderr, "Create JVM failed.\n");
 		return JNI_FALSE;
+  }
+  if((**jni_env)->GetVersion(*jni_env) <= JNI_VERSION_1_6)
+  {
+    char error_msg[MAX_LEN];
+    sprintf(error_msg, "%s found:%s\nBut the minimum version of JRE required is 1.7.", JVM_SO, jvm_so_path);
+    show_error_dialog(error_msg);
+    (**java_vm)->DestroyJavaVM(*java_vm);
+    exit(EXIT_FAILURE);
   }
 	return JNI_TRUE;
 }
@@ -165,7 +166,7 @@ char* get_arch()
   return I386;
 }
 
-void* load_jvm_so(const char* so_path)
+JvmCreateFun load_jvm_so(const char* so_path)
 {
   void* jvm_so = dlopen(so_path, RTLD_NOW + RTLD_GLOBAL);
   if(jvm_so == NULL)
@@ -173,5 +174,11 @@ void* load_jvm_so(const char* so_path)
     fprintf(stderr, "%s\n", dlerror());
     return NULL;
   }
-  return jvm_so;
+  JvmCreateFun fun = dlsym(jvm_so, "JNI_CreateJavaVM");
+  if(fun == NULL)
+  {
+    fprintf(stderr, "%s\n", dlerror());
+    return NULL;
+  }
+  return fun;
 }
