@@ -2,6 +2,8 @@ cmake_minimum_required (VERSION 2.6)
 
 project (Typing-Game C Java)
 
+enable_language(Java)
+
 set(JAVA_SOURCE_FILES
 		${PROJECT_SOURCE_DIR}/Java/buptsse/zero/GlobalSettings.java
 		${PROJECT_SOURCE_DIR}/Java/buptsse/zero/TextFileParser.java
@@ -12,6 +14,7 @@ set(JAVA_SOURCE_FILES
 		${PROJECT_SOURCE_DIR}/Java/buptsse/zero/MainInterface.java
 		)
 
+message(STATUS "Java Compiler detected:${CMAKE_Java_COMPILER}")
 set(EXECUTABLE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/bin)
 file(MAKE_DIRECTORY ${EXECUTABLE_OUTPUT_PATH})
 set(CLASS_FILE_OUTPUT_PATH ${CMAKE_BINARY_DIR}/java_out)
@@ -20,9 +23,9 @@ message(STATUS "Copying the Java resource files...")
 file(COPY ${PROJECT_SOURCE_DIR}/Java/buptsse/zero/res DESTINATION ${CLASS_FILE_OUTPUT_PATH}/buptsse/zero)
 
 add_custom_target(Typing-Game-Java ALL
-								COMMAND javac -encoding utf-8 ${JAVA_SOURCE_FILES} -d ${CLASS_FILE_OUTPUT_PATH}
+								COMMAND ${CMAKE_Java_COMPILER} -encoding utf-8 ${JAVA_SOURCE_FILES} -d ${CLASS_FILE_OUTPUT_PATH}
 								COMMAND echo Generating JAR package...
-								COMMAND jar cvfm ${EXECUTABLE_OUTPUT_PATH}/Typing-Game.jar ${PROJECT_SOURCE_DIR}/Java/MANIFEST.MF -C ${CLASS_FILE_OUTPUT_PATH} .
+								COMMAND ${CMAKE_Java_ARCHIVE} cvfm ${EXECUTABLE_OUTPUT_PATH}/Typing-Game.jar ${PROJECT_SOURCE_DIR}/Java/MANIFEST.MF -C ${CLASS_FILE_OUTPUT_PATH} .
 								)
 
 message(STATUS "Check Java Runtime Environment...")
@@ -46,7 +49,6 @@ set(LAUNCHER_SOURCE_FILES
 		C-Launcher/LauncherMain.c)
 if(WIN32)
 	list(APPEND LAUNCHER_SOURCE_FILES C-Launcher/LauncherTool-Win.c)
-	link_libraries(comctl32)
 	if(MINGW)
 		link_libraries(comctl32)
 		set(CMAKE_EXE_LINKER_FLAGS "-mwindows")

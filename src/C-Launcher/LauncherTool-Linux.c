@@ -8,8 +8,6 @@
 
 #define MAX_LEN 512
 #define JVM_SO "libjvm.so"
-#define I386 "i386"
-#define AMD64 "amd64"
 #define JVM_CLIENT_SO_PATH "client"
 #define JVM_SERVER_SO_PATH "server"
 
@@ -17,7 +15,6 @@ typedef jint(JNICALL *JvmCreateFun)(JavaVM**, void**, void*);
 
 char* find_jvm_so(const char* java_home_path);
 JvmCreateFun load_jvm_so(const char* so_path);
-char* get_arch();
 
 int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 {
@@ -125,9 +122,6 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 char* find_jvm_so(const char* java_home_path)
 {
   char* path = malloc(sizeof(char) * MAX_LEN);
-  sprintf(path, "%s%c%s", java_home_path, FILE_SEPARATOR, JVM_SO);
-  if(check_file_exist(path))
-    return path;
 
   //java_home/lib/i386(amd64)/client(server)/libjvm.so
   sprintf(path, "%s%clib%c%s%c%s%c%s", java_home_path, FILE_SEPARATOR, FILE_SEPARATOR,
@@ -152,18 +146,12 @@ char* find_jvm_so(const char* java_home_path)
   if(check_file_exist(path))
     return path;
 
+  sprintf(path, "%s%c%s", java_home_path, FILE_SEPARATOR, JVM_SO);
+  if(check_file_exist(path))
+    return path;
+
   free(path);
   return NULL;
-}
-
-char* get_arch()
-{
-  int bits = CHAR_BIT * sizeof(void*);
-  if(bits == 32)
-    return I386;
-  else if(bits == 64)
-    return AMD64;
-  return I386;
 }
 
 JvmCreateFun load_jvm_so(const char* so_path)

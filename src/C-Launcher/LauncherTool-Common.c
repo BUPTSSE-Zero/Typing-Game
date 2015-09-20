@@ -5,7 +5,7 @@
 #endif //_WIN32
 
 #include "LauncherTool.h"
-#include <dirent.h>
+#include <limits.h>
 #include <sys/stat.h>
 
 int check_file_exist(const char* file_path)
@@ -27,6 +27,16 @@ int sub_str(const char* str, int start_pos, int len, char* target_str)
 		target_str[c++] = str[i];
 	target_str[c] = '\0';
 	return JNI_TRUE;
+}
+
+const char* get_arch()
+{
+	int bits = CHAR_BIT * sizeof(void*);
+	if (bits == 32)
+		return I386;
+	else if (bits == 64)
+		return AMD64;
+	return I386;
 }
 
 void show_error_dialog(const char* error_msg)
