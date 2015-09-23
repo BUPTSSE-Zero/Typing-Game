@@ -239,6 +239,9 @@ enum JvmLoadErrorType load_jvm_dll(const char* jvm_dll_path, const char* class_p
 		return JVM_CREATE_FAILED;
 	}
 	if ((**jni_env)->GetVersion(*jni_env) < JRE_MINIMUM_VERSION_WIN)
+	{
+		(**java_vm)->DestroyJavaVM(*java_vm);
 		return JVM_VERSION_ERROR;
+	}
 	return JVM_LOAD_SUCCESS;
 }

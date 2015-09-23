@@ -6,27 +6,21 @@
 #include <errno.h>
 #include <limits.h>
 
-#define MAX_LEN 512
-#define JVM_SO "libjvm.so"
 #define JVM_CLIENT_SO_PATH "client"
 #define JVM_SERVER_SO_PATH "server"
 
 typedef jint(JNICALL *JvmCreateFun)(JavaVM**, void**, void*);
-
 char* find_jvm_so(const char* java_home_path);
-JvmCreateFun load_jvm_so(const char* so_path);
 
-int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
+int load_jvm_from_env_variable(const char* env_variable, const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 {
-  char* java_home = getenv(JAVA_HOME);
+  char* java_home = getenv(env_variable);
   char java_home_path[MAX_LEN];
   char* jvm_so_path = NULL;
-  JvmCreateFun jvm_create_proc = NULL;
-  int find_flag = JNI_FALSE;
   int len;
   if(java_home && (len = strlen(java_home)) > 0)
   {
-    printf("JAVA_HOME=%s\n", java_home);
+    printf("%s=%s\n",env_variable, java_home);
 		int i, pos = 0;
 		for (i = 0; i <= len; i++)
 		{
@@ -39,11 +33,11 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 					jvm_so_path = find_jvm_so(java_home_path);
 					if (jvm_so_path != NULL)
 					{
-						if((jvm_create_proc = load_jvm_so(jvm_so_path)) != NULL)
+						if(load_jvm_dll(jvm_so_path, class_path, java_vm, jni_env) == JVM_LOAD_SUCCESS)
 						{
-              find_flag = JNI_TRUE;
-              break;
-            }
+              free(jvm_so_path);
+              return JNI_TRUE;
+						}
             free(jvm_so_path);
             jvm_so_path = NULL;
 					}
@@ -51,44 +45,70 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 			}
 		}
   }
+  return JNI_FALSE;
+}
 
-  if(!find_flag)
-    java_home = getenv(PATH);
-  if(!find_flag && java_home && (len = strlen(java_home)) > 0)
+int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
+{
+  if(load_jvm_from_env_variable(JAVA_HOME, class_path, java_vm, jni_env))
+    return JNI_TRUE;
+  if(load_jvm_from_env_variable(PATH, class_path, java_vm, jni_env))
+    return JNI_TRUE;
+	return JNI_FALSE;
+}
+
+char* find_jvm_so(const char* java_home_path)
+{
+  char* path = malloc(sizeof(char) * MAX_LEN);
+
+  //java_home/lib/i386(amd64)/client(server)/libjvm.so
+  sprintf(path, "%s%clib%c%s%c%s%c%s", java_home_path, FILE_SEPARATOR, FILE_SEPARATOR,
+          get_arch(), FILE_SEPARATOR, JVM_CLIENT_SO_PATH, FILE_SEPARATOR, JVM_DLL);
+  if(check_file_exist(path))
+    return path;
+
+  sprintf(path, "%s%clib%c%s%c%s%c%s", java_home_path, FILE_SEPARATOR, FILE_SEPARATOR,
+          get_arch(), FILE_SEPARATOR, JVM_SERVER_SO_PATH, FILE_SEPARATOR, JVM_DLL);
+  if(check_file_exist(path))
+    return path;
+
+
+  //java_home/jre/lib/i386(amd64)/client(server)/libjvm.so
+  sprintf(path, "%s%cjre%clib%c%s%c%s%c%s", java_home_path, FILE_SEPARATOR, FILE_SEPARATOR, FILE_SEPARATOR,
+          get_arch(), FILE_SEPARATOR, JVM_CLIENT_SO_PATH, FILE_SEPARATOR, JVM_DLL);
+  if(check_file_exist(path))
+    return path;
+
+  sprintf(path, "%s%cjre%clib%c%s%c%s%c%s", java_home_path, FILE_SEPARATOR, FILE_SEPARATOR, FILE_SEPARATOR,
+          get_arch(), FILE_SEPARATOR, JVM_SERVER_SO_PATH, FILE_SEPARATOR, JVM_DLL);
+  if(check_file_exist(path))
+    return path;
+
+  sprintf(path, "%s%c%s", java_home_path, FILE_SEPARATOR, JVM_DLL);
+  if(check_file_exist(path))
+    return path;
+
+  free(path);
+  return NULL;
+}
+
+enum JvmLoadErrorType load_jvm_dll(const char* jvm_dll_path, const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
+{
+  void* jvm_so = dlopen(jvm_dll_path, RTLD_NOW + RTLD_GLOBAL);
+  if(!check_file_exist(jvm_dll_path))
+    return JVM_DLL_NOT_FOUND;
+  if(jvm_so == NULL)
   {
-    printf("PATH=%s\n", java_home);
-		int i, pos = 0;
-		for (i = 0; i <= len; i++)
-		{
-			if (java_home[i] == PATH_SEPARATOR || i == len)
-			{
-				if (sub_str(java_home, pos, i - pos, java_home_path))
-				{
-					if (java_home_path[strlen(java_home_path) - 1] == FILE_SEPARATOR)
-						java_home_path[strlen(java_home_path) - 1] = '\0';
-					jvm_so_path = find_jvm_so(java_home_path);
-					if (jvm_so_path != NULL)
-					{
-						if((jvm_create_proc = load_jvm_so(jvm_so_path)) != NULL)
-						{
-              find_flag = JNI_TRUE;
-              break;
-            }
-            free(jvm_so_path);
-            jvm_so_path = NULL;
-					}
-				}
-			}
-		}
+    fprintf(stderr, "%s\n", dlerror());
+    return JVM_DLL_LOAD_FAILED;
   }
-
-  if(!find_flag || jvm_so_path == NULL || jvm_create_proc == NULL)
+  JvmCreateFun jvm_create_proc = dlsym(jvm_so, JVM_CREATE_FUN);
+  if(jvm_create_proc == NULL)
   {
-    fprintf(stderr, "Can't find %s(%s version).\n", JVM_SO, get_arch());
-    return JNI_FALSE;
+    fprintf(stderr, "%s\n", dlerror());
+    dlclose(jvm_so);
+    return JVM_DLL_ENTRY_NOT_FOUND;
   }
-
-  printf("%s found:%s\n", JVM_SO, jvm_so_path);
 
   JavaVMOption vm_options[2];
 	JavaVMInitArgs vm_init_args;
@@ -106,67 +126,14 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
   if (jvm_create_proc(java_vm, (void**)jni_env, (void*)&vm_init_args) != 0)
   {
     fprintf(stderr, "Create JVM failed.\n");
-		return JNI_FALSE;
+    dlclose(jvm_so);
+		return JVM_CREATE_FAILED;
   }
-  if((**jni_env)->GetVersion(*jni_env) <= JNI_VERSION_1_6)
+  if((**jni_env)->GetVersion(*jni_env) < JRE_MINIMUM_VERSION_LINUX)
   {
-    char error_msg[MAX_LEN];
-    sprintf(error_msg, "%s found:%s\nBut the minimum version of JRE required is 1.7.", JVM_SO, jvm_so_path);
-    show_error_dialog(error_msg);
     (**java_vm)->DestroyJavaVM(*java_vm);
-    exit(EXIT_FAILURE);
+    dlclose(jvm_so);
+    return JVM_VERSION_ERROR;
   }
-	return JNI_TRUE;
-}
-
-char* find_jvm_so(const char* java_home_path)
-{
-  char* path = malloc(sizeof(char) * MAX_LEN);
-
-  //java_home/lib/i386(amd64)/client(server)/libjvm.so
-  sprintf(path, "%s%clib%c%s%c%s%c%s", java_home_path, FILE_SEPARATOR, FILE_SEPARATOR,
-          get_arch(), FILE_SEPARATOR, JVM_CLIENT_SO_PATH, FILE_SEPARATOR, JVM_SO);
-  if(check_file_exist(path))
-    return path;
-
-  sprintf(path, "%s%clib%c%s%c%s%c%s", java_home_path, FILE_SEPARATOR, FILE_SEPARATOR,
-          get_arch(), FILE_SEPARATOR, JVM_SERVER_SO_PATH, FILE_SEPARATOR, JVM_SO);
-  if(check_file_exist(path))
-    return path;
-
-
-  //java_home/jre/lib/i386(amd64)/client(server)/libjvm.so
-  sprintf(path, "%s%cjre%clib%c%s%c%s%c%s", java_home_path, FILE_SEPARATOR, FILE_SEPARATOR, FILE_SEPARATOR,
-          get_arch(), FILE_SEPARATOR, JVM_CLIENT_SO_PATH, FILE_SEPARATOR, JVM_SO);
-  if(check_file_exist(path))
-    return path;
-
-  sprintf(path, "%s%cjre%clib%c%s%c%s%c%s", java_home_path, FILE_SEPARATOR, FILE_SEPARATOR, FILE_SEPARATOR,
-          get_arch(), FILE_SEPARATOR, JVM_SERVER_SO_PATH, FILE_SEPARATOR, JVM_SO);
-  if(check_file_exist(path))
-    return path;
-
-  sprintf(path, "%s%c%s", java_home_path, FILE_SEPARATOR, JVM_SO);
-  if(check_file_exist(path))
-    return path;
-
-  free(path);
-  return NULL;
-}
-
-JvmCreateFun load_jvm_so(const char* so_path)
-{
-  void* jvm_so = dlopen(so_path, RTLD_NOW + RTLD_GLOBAL);
-  if(jvm_so == NULL)
-  {
-    fprintf(stderr, "%s\n", dlerror());
-    return NULL;
-  }
-  JvmCreateFun fun = dlsym(jvm_so, "JNI_CreateJavaVM");
-  if(fun == NULL)
-  {
-    fprintf(stderr, "%s\n", dlerror());
-    return NULL;
-  }
-  return fun;
+  return JVM_LOAD_SUCCESS;
 }

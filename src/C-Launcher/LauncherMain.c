@@ -14,6 +14,7 @@
 
 #include <jni.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "LauncherTool.h"
 
@@ -44,14 +45,34 @@ void manual_load_jvm(const char* jvm_load_error_msg)
 		ofn.lStructSize = sizeof(ofn);
 		ofn.hwndOwner = NULL;
 		ofn.lpstrFilter = file_filter;
-		ofn.lpstrFile = file_path;  
+		ofn.lpstrFile = file_path;
 		ofn.nMaxFile = sizeof(file_path);
 		ofn.nFilterIndex = 0;
 		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER | OFN_NOCHANGEDIR;
 		if (GetOpenFileName(&ofn) == FALSE)
 			continue;
 #else
-		exit(EXIT_FAILURE);
+		GtkDialog* dialog = GTK_DIALOG(gtk_message_dialog_new(NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_YES_NO, jvm_load_error_msg, NULL));
+    gtk_window_set_title(GTK_WINDOW(dialog), "Error");
+    if(gtk_dialog_run(dialog) != GTK_RESPONSE_YES)
+      exit(EXIT_FAILURE);
+    gtk_widget_destroy(GTK_WIDGET(dialog));
+    GtkFileChooserDialog* file_chooser_dialog = GTK_FILE_CHOOSER_DIALOG(gtk_file_chooser_dialog_new("Browse", NULL, GTK_FILE_CHOOSER_ACTION_OPEN,
+                                                                           GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
+                                                                           GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL));
+    GtkFileFilter* file_filter = gtk_file_filter_new();
+    gtk_file_filter_add_pattern(file_filter, "*.so");
+    gtk_file_filter_set_name(file_filter, JVM_DLL);
+    gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(file_chooser_dialog), file_filter);
+    int ret = gtk_dialog_run(GTK_DIALOG(file_chooser_dialog));
+    gtk_widget_hide(GTK_WIDGET(file_chooser_dialog));
+    if(ret != GTK_RESPONSE_ACCEPT)
+    {
+      gtk_widget_destroy(GTK_WIDGET(file_chooser_dialog));
+      continue;
+    }
+    strcpy(file_path, gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_chooser_dialog)));
+    gtk_widget_destroy(GTK_WIDGET(file_chooser_dialog));
 #endif
 		load_result = load_jvm_dll(file_path, TYPING_GAME_JAR_PATH, &java_vm, &env);
 		if (load_result == JVM_LOAD_SUCCESS)
