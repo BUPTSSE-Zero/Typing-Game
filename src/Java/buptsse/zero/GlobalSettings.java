@@ -2,7 +2,6 @@ package buptsse.zero;
 
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
-import javax.xml.soap.Text;
 import java.awt.*;
 import java.util.Enumeration;
 

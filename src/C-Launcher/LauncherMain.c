@@ -1,5 +1,6 @@
 ﻿#ifdef _WIN32
 #include <windows.h>
+#include <commdlg.h>
 #include <commctrl.h>
 #ifdef _MSC_VER
 #pragma comment(lib, "comctl32.lib")
@@ -16,12 +17,72 @@
 #include <string.h>
 #include "LauncherTool.h"
 
-#define ERROR_JVM_CREATE_FAILED "Can not create a JVM to run this program.Please check if you have already " \
-																"installed JDK or JRE and configured the environment variable JAVA_HOME.If you have done them, please check " \
-																"if jvm.dll(Windows) or libjvm.so(Linux) exists in PATH or the directory where you installed JDK(JRE)."
+#define ERROR_JVM_CREATE_FAILED "Can not create a JVM automatically to run this program.Please check if you have already " \
+																"installed %s JRE(%s or later version) and defined the environment variable JAVA_HOME.If you have done them, please check " \
+																"if %s exists in PATH or the directory where you installed JRE.\n\n" \
+																"Do you want to load %s manually?"
 
 #define ERROR_MAIN_CLASS_NOT_FOUND "Can not find the class buptsse.zero.MainInterface in Typing-Game.jar"
 #define ERROR_MAIN_METHOD_NOT_FOUND "Can't find the entry method \"show()\" in class buptsse.zero.MainInterface"
+
+JNIEnv* env;
+JavaVM* java_vm;
+
+void manual_load_jvm(const char* jvm_load_error_msg)
+{
+	char error_msg[MAX_LEN];
+	while (1)
+	{
+		enum JvmLoadErrorType load_result;
+		char file_path[MAX_LEN] = {0};
+#ifdef _WIN32
+		OPENFILENAME ofn = {0};
+		char file_filter[50] = {0};
+		sprintf(file_filter, "%s%c*.dll", JVM_DLL, '\0');
+		if (MessageBox(NULL, jvm_load_error_msg, "Error", MB_YESNO | MB_ICONERROR) != IDYES)
+			exit(EXIT_FAILURE);
+		ofn.lStructSize = sizeof(ofn);
+		ofn.hwndOwner = NULL;
+		ofn.lpstrFilter = file_filter;
+		ofn.lpstrFile = file_path;  
+		ofn.nMaxFile = sizeof(file_path);
+		ofn.nFilterIndex = 0;
+		ofn.Flags = OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_EXPLORER | OFN_NOCHANGEDIR;
+		if (GetOpenFileName(&ofn) == FALSE)
+			continue;
+#else
+		exit(EXIT_FAILURE);
+#endif
+		load_result = load_jvm_dll(file_path, TYPING_GAME_JAR_PATH, &java_vm, &env);
+		if (load_result == JVM_LOAD_SUCCESS)
+			return;
+		switch (load_result)
+		{
+			case JVM_DLL_NOT_FOUND:
+				sprintf(error_msg, "The %s doesn't exist.\n", JVM_DLL);
+				break;
+			case JVM_DLL_LOAD_FAILED:
+				sprintf(error_msg, "Load %s failed.Please check if it's a valid %s %s.\n", JVM_DLL, get_bit_version(), JVM_DLL);
+				break;
+			case JVM_DLL_ENTRY_NOT_FOUND:
+				sprintf(error_msg, "The entry of the function \"%s\" can't be found in %s.\n", JVM_CREATE_FUN, JVM_DLL);
+				break;
+			case JVM_CREATE_FAILED:
+				sprintf(error_msg, "Create JVM failed.Try again.\n");
+				break;
+			case JVM_VERSION_ERROR:
+				sprintf(error_msg, "JRE version error.The minimum version of JRE required is %s.\n", get_jre_minimum_version());
+				break;
+			default:
+				sprintf(error_msg, "Unknown error.\n");
+				break;
+		}
+		strcat(error_msg, JVM_DLL);
+		strcat(error_msg, " path:");
+		strcat(error_msg, file_path);
+		show_error_dialog(error_msg);
+	}
+}
 
 int main()
 {
@@ -31,13 +92,11 @@ int main()
   gtk_init(NULL, NULL);                         //init gtk library.
 #endif // _WIN32
 
-	JNIEnv* env;
-	JavaVM* java_vm;
-
-	if (!load_jvm("./Typing-Game.jar", &java_vm, &env))
+	char error_msg[MAX_LEN];
+	if (!load_jvm(TYPING_GAME_JAR_PATH, &java_vm, &env))
 	{
-		show_error_dialog(ERROR_JVM_CREATE_FAILED);
-		return -1;
+		sprintf(error_msg, ERROR_JVM_CREATE_FAILED, get_bit_version(), get_jre_minimum_version(), JVM_DLL, JVM_DLL);
+		manual_load_jvm(error_msg);
 	}
 
 	jclass main_class = (*env)->FindClass(env, "buptsse/zero/MainInterface");

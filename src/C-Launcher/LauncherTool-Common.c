@@ -39,6 +39,38 @@ const char* get_arch()
 	return I386;
 }
 
+const char* get_bit_version()
+{
+	int bits = CHAR_BIT * sizeof(void*);
+	if (bits == 32)
+		return BIT32;
+	else if (bits == 64)
+		return BIT64;
+	return BIT32;
+}
+
+const char* get_jre_minimum_version()
+{
+	int jre_ver;
+#ifdef _WIN32
+	jre_ver = JRE_MINIMUM_VERSION_WIN;
+#else
+	jre_ver = JRE_MINIMUM_VERSION_LINUX;
+#endif
+	switch (jre_ver)
+	{
+		case JNI_VERSION_1_6:
+			return "1.6";
+		case 0x00010007:
+			return "1.7";
+		case 0x00010008:
+			return "1.8";
+		case 0x00010009:
+			return "1.9";
+	}
+	return "unknow version";
+}
+
 void show_error_dialog(const char* error_msg)
 {
 #ifdef _WIN32
