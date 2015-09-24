@@ -2,8 +2,10 @@
 #include <windows.h>
 #include <commdlg.h>
 #include <commctrl.h>
+#include <direct.h>
 #ifdef _MSC_VER
 #pragma comment(lib, "comctl32.lib")
+#pragma warning(disable:4996)
 #ifndef _DEBUG
 #pragma comment(linker, "/subsystem:\"windows\" /entry:\"mainCRTStartup\"" )			//Only show console in debug mode.
 #endif //_DEBUG
@@ -107,8 +109,12 @@ void manual_load_jvm(const char* jvm_load_error_msg)
 
 int main()
 {
-#ifdef _WIN32																		//init win32 widgets in system theme.
-	InitCommonControls();
+#ifdef _WIN32
+	InitCommonControls();													//init win32 widgets in system theme.
+	char exec_path[MAX_LEN];
+	GetModuleFileName(NULL, exec_path, sizeof(exec_path));
+	*(strrchr(exec_path, FILE_SEPARATOR)) = '\0';
+	chdir(exec_path);
 #else
   gtk_init(NULL, NULL);                         //init gtk library.
 #endif // _WIN32
@@ -126,7 +132,7 @@ int main()
 		show_error_dialog(ERROR_MAIN_CLASS_NOT_FOUND);
 		return -1;
 	}
-
+	
 	jmethodID main_method_id = (*env)->GetStaticMethodID(env, main_class, "show", "()V");
 	if (main_method_id == NULL)
 	{

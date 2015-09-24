@@ -2,21 +2,13 @@ package buptsse.zero;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.peer.FileDialogPeer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.util.ArrayList;
 
-import javax.swing.BorderFactory;
-import javax.swing.Box;
-import javax.swing.ButtonGroup;
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JFrame;
-import javax.swing.JLabel;
-import javax.swing.JOptionPane;
-import javax.swing.JRadioButton;
-import javax.swing.JTextField;
+import javax.swing.*;
 
 public class MainInterface {
 	private static JFrame MainWindow = null;
@@ -55,37 +47,30 @@ public class MainInterface {
 		//Label Player Name and TextField
 		Box PlayerNameInputBox = Box.createHorizontalBox();
 		PlayerNameInputBox.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
-		JLabel LabelPlayerName = new JLabel(GlobalSettings.LABEL_PLAYER_NAME + ":");
-		LabelPlayerName.setFont(GlobalSettings.GlobalFont);
+		final JLabel LabelPlayerName = new JLabel(GlobalSettings.LABEL_PLAYER_NAME + ":");
 		PlayerNameInputBox.add(LabelPlayerName);
 		PlayerNameInputBox.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		final JTextField PlayerNameInput = new JTextField();
-		PlayerNameInput.setMargin(new Insets(2, 4, 2, HORIZONTAL_MARGIN));
-		PlayerNameInput.setFont(GlobalSettings.GlobalFont);
 		PlayerNameInputBox.add(PlayerNameInput);
 		PlayerNameInputBox.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		TextFieldBox.add(PlayerNameInputBox);
 		TextFieldBox.add(Box.createRigidArea(new Dimension(0, VERTICAL_MARGIN)));
-		
-		
+
 		//RadioButton1 and TextField
 		Box Option1Box = Box.createHorizontalBox();
 		Option1Box.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		final JRadioButton Option1Radio = new JRadioButton(GlobalSettings.LABEL_INTERNAL_TEXT + ":");
-		Option1Radio.setFont(GlobalSettings.GlobalFont);
 		Option1Radio.setSelected(true);
 		Option1Box.add(Option1Radio);
 		Option1Box.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		final JTextField Option1TextField = new JTextField();
-		Option1TextField.setMargin(new Insets(2, 4, 2, 4));
-		Option1TextField.setFont(GlobalSettings.GlobalFont);
 		Option1Radio.addItemListener(new ItemListener() {
 			@Override
 			public void itemStateChanged(ItemEvent e) {
 				// TODO Auto-generated method stub
-				if(e.getStateChange() == ItemEvent.DESELECTED)
+				if (e.getStateChange() == ItemEvent.DESELECTED)
 					Option1TextField.setEnabled(false);
-				else 
+				else
 					Option1TextField.setEnabled(true);
 			}
 		});
@@ -98,19 +83,14 @@ public class MainInterface {
 		Box Option2Box = Box.createHorizontalBox();
 		Option2Box.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		final JRadioButton Option2Radio = new JRadioButton(GlobalSettings.LABEL_EXTERNAL_TEXT + "(.xml):");
-		Option2Radio.setFont(GlobalSettings.GlobalFont);
 		Option2Box.add(Option2Radio);
 		Option2Box.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		final JTextField Option2TextField = new JTextField();
-		Option2TextField.setMargin(new Insets(2, 4, 2, 4));
-		Option2TextField.setFont(GlobalSettings.GlobalFont);
 		Option2TextField.setEnabled(false);
 		Option2Box.add(Option2TextField);
 		Option2Box.add(Box.createRigidArea(new Dimension(HORIZONTAL_MARGIN, 0)));
 		final JButton BrowseButton = new JButton(GlobalSettings.LABEL_BROWSE + "...");
 		BrowseButton.setIcon(GlobalSettings.ICON_OPEN);
-		BrowseButton.setFont(GlobalSettings.GlobalFont);
-		BrowseButton.setMargin(new Insets(2, 4, 2, 4));
 		BrowseButton.setEnabled(false);
 		Option2Radio.addItemListener(new ItemListener() {
 			@Override
@@ -166,8 +146,6 @@ public class MainInterface {
 		Box ButtonBox = Box.createHorizontalBox();
 		ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
 		JButton AboutButton = new JButton(GlobalSettings.LABEL_ABOUT, GlobalSettings.ICON_ABOUT);
-		AboutButton.setFont(GlobalSettings.GlobalFont);
-		AboutButton.setMargin(new Insets(2, 10, 2, 10));
 		AboutButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -178,13 +156,11 @@ public class MainInterface {
 		});
 		ButtonBox.add(AboutButton);
 		final JButton EnterButton = new JButton(GlobalSettings.LABEL_ENTER, GlobalSettings.ICON_ENTER);
-		EnterButton.setFont(GlobalSettings.GlobalFont);
 		EnterButton.setMargin(new Insets(2, 30, 2, 30));
 		ButtonBox.add(Box.createHorizontalGlue());
 		ButtonBox.add(EnterButton);
 		ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
 		JButton ExitButton = new JButton(GlobalSettings.LABEL_EXIT, GlobalSettings.ICON_EXIT);
-		ExitButton.setFont(GlobalSettings.GlobalFont);
 		ExitButton.setMargin(new Insets(2, 10, 2, 10));
 		ExitButton.addActionListener(new ActionListener() {
 			@Override
@@ -240,16 +216,10 @@ public class MainInterface {
 		EnterButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				String TempStr = PlayerNameInput.getText();
-				int SpaceCount = 0;
-				for(int i = 0; i < TempStr.length(); i++)
+				String PlayerName = PlayerNameInput.getText();
+				if(!GlobalSettings.checkPlayerName(PlayerName))
 				{
-					if(TempStr.charAt(i) == ' ')
-						SpaceCount++;
-				}
-				if(SpaceCount == TempStr.length())
-				{
-					showErrorDialog(GlobalSettings.MESSAGE_PLAYER_NAME_BLANK);
+					GlobalSettings.showMessageDialog(MainWindow, GlobalSettings.MESSAGE_PLAYER_NAME_INVALID, GlobalSettings.ICON_DIALOG_ERROR);
 					PlayerNameInput.requestFocus();
 					PlayerNameInput.selectAll();
 					return;
@@ -262,13 +232,14 @@ public class MainInterface {
 					try{
 						IDNum = Integer.parseInt(Option1TextField.getText());
 					}catch (Exception exception){
-						showErrorDialog(GlobalSettings.MESSAGE_ID_NUMBER_INVALID);
+						GlobalSettings.showMessageDialog(MainWindow, GlobalSettings.MESSAGE_ID_NUMBER_INVALID, GlobalSettings.ICON_DIALOG_ERROR);
 						return;
 					}
 					FilePath = "res/text/text" + IDNum + ".xml";
 					if(parser.parseFile(MainInterface.class.getResourceAsStream(FilePath)) == false)
 					{
-						showErrorDialog(GlobalSettings.MESSAGE_FILE_OPEN_FAILD + "\n" + FilePath);
+						GlobalSettings.showMessageDialog(MainWindow, GlobalSettings.MESSAGE_FILE_OPEN_FAILD + "\n" + FilePath,
+														GlobalSettings.ICON_DIALOG_ERROR);
 						return;
 					}
 				}
@@ -283,7 +254,8 @@ public class MainInterface {
 						ParseResult = false;
 					}
 					if(!ParseResult){
-						showErrorDialog(GlobalSettings.MESSAGE_FILE_OPEN_FAILD + "\n" + FilePath);
+						GlobalSettings.showMessageDialog(MainWindow,  GlobalSettings.MESSAGE_FILE_OPEN_FAILD + "\n" + FilePath,
+														GlobalSettings.ICON_DIALOG_ERROR);
 						return;
 					}
 				}
@@ -292,18 +264,13 @@ public class MainInterface {
 				ArrayList<String> TextList = parser.getMultiRowText();
 				if(TextList.isEmpty())
 				{
-					showErrorDialog(GlobalSettings.MESSAGE_TEXT_EMPTY + "\n" + FilePath);
+					GlobalSettings.showMessageDialog(MainWindow, GlobalSettings.MESSAGE_TEXT_EMPTY + "\n" + FilePath,
+													GlobalSettings.ICON_DIALOG_ERROR);
 					return;
 				}
-				new GameInterface(TempStr, TextList).show();
+				new GameInterface(PlayerName, TextList).show();
 			}
 		});
-	}
-
-	private static void showErrorDialog(String message)
-	{
-		JOptionPane.showMessageDialog(MainWindow, message, GlobalSettings.WINDOW_TITLE, JOptionPane.CLOSED_OPTION,
-										GlobalSettings.ICON_DIALOG_ERROR);
 	}
 	
 	/*public static void main(String[] args) {

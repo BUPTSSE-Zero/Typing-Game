@@ -38,5 +38,11 @@ END
 //
 // Manifest resources
 //
+
+#ifdef _M_AMD64
 LANGUAGE 0, SUBLANG_NEUTRAL
-1   RT_MANIFEST    "Win32Theme.manifest"
+1   RT_MANIFEST    "Win32Theme-amd64.manifest"
+#elif defined(_M_IX86)
+LANGUAGE 0, SUBLANG_NEUTRAL
+1   RT_MANIFEST    "Win32Theme-x86.manifest"
+#endif

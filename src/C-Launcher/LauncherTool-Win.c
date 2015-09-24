@@ -19,16 +19,16 @@ char* find_jvm_dll(const char* java_home_path);
 char* find_public_jre();
 int get_string_from_registry(HKEY key, const char* name, char* buf, unsigned int buf_size);
 
-int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
+int load_jvm_from_env_variable(const char* env_variable, const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 {
 	char java_home[MAX_LEN];
 	char java_home_path[MAX_LEN];
 	char* jvm_dll_path = NULL;
 	JvmCreateFun jvm_create_proc = NULL;
 
-	if (GetEnvironmentVariable(JAVA_HOME, java_home, sizeof(java_home)) > 0)
+	if (GetEnvironmentVariable(env_variable, java_home, sizeof(java_home)) > 0)
 	{
-		printf("JAVA_HOME=%s\n", java_home);
+		printf("%s=%s\n",env_variable, java_home);
 		int i, len = strlen(java_home), pos = 0;
 		for (i = 0; i <= len; i++)
 		{
@@ -53,35 +53,19 @@ int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
 			}
 		}
 	}
+	return JNI_FALSE;
+#ifdef _M_IX86
+#endif
+}
 
-	if (GetEnvironmentVariable(PATH, java_home, sizeof(java_home)) > 0)
-	{
-		printf("PATH=%s\n", java_home);
-		int i, len = strlen(java_home), pos = 0;
-		for (i = 0; i <= len; i++)
-		{
-			if (java_home[i] == PATH_SEPARATOR || i == len)
-			{
-				if (sub_str(java_home, pos, i - pos, java_home_path))
-				{
-					if (java_home_path[strlen(java_home_path) - 1] == FILE_SEPARATOR)
-						java_home_path[strlen(java_home_path) - 1] = '\0';
-					jvm_dll_path = find_jvm_dll(java_home_path);
-					if (jvm_dll_path != NULL)
-					{
-						if (load_jvm_dll(jvm_dll_path, class_path, java_vm, jni_env) == JVM_LOAD_SUCCESS)
-						{
-							free(jvm_dll_path);
-							return JNI_TRUE;
-						}
-						free(jvm_dll_path);
-						jvm_dll_path = NULL;
-					}
-				}
-			}
-		}
-	}
+int load_jvm(const char* class_path, JavaVM** java_vm, JNIEnv** jni_env)
+{
+	if (load_jvm_from_env_variable(JAVA_HOME, class_path, java_vm, jni_env))
+		return JNI_TRUE;
+	if (load_jvm_from_env_variable(PATH, class_path, java_vm, jni_env))
+		return JNI_TRUE;
 
+	char* jvm_dll_path = NULL;
 	char* jre_path = find_public_jre();
 	if (jre_path)
 	{

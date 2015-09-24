@@ -4,6 +4,7 @@ import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.util.Enumeration;
+import java.util.Locale;
 
 public class GlobalSettings
 {
@@ -18,6 +19,7 @@ public class GlobalSettings
     public static SystemPlatform OSInfo;
 
     private static final float TEXT_FONT_SIZE = (float)18.0;
+    private static final float DIALOG_MESSAGE_FONT_SIZE = (float)14.0;
     private static final String ICON_PATH = "res/icon/";
     //Icons
     public static ImageIcon ICON_OPEN = null;
@@ -36,6 +38,7 @@ public class GlobalSettings
     public static ImageIcon ICON_DIALOG_INFO = null;
     public static ImageIcon ICON_DIALOG_QUESTION = null;
     public static ImageIcon ICON_DIALOG_ERROR = null;
+    public static ImageIcon ICON_DIALOG_INPUT = null;
 
     //Strings
     public static String PRODUCT_NAME = "Typing Game";
@@ -54,7 +57,7 @@ public class GlobalSettings
     public static String LABEL_PAUSE = "Pause";
     public static String LABEL_REPLAY = "Replay";
     public static String MESSAGE_QUERY_EXIT = "Do you really want to exit?";
-    public static String MESSAGE_PLAYER_NAME_BLANK = "The player name can't be blank.";
+    public static String MESSAGE_PLAYER_NAME_INVALID = "The player name can't be blank or contain any spaces.";
     public static String MESSAGE_FILE_OPEN_FAILD = "The specific text file can't be open.";
     public static String MESSAGE_TEXT_EMPTY = "Can't find any text in the specific text file.";
     public static String MESSAGE_ID_NUMBER_INVALID = "The ID number is invalid.";
@@ -62,6 +65,7 @@ public class GlobalSettings
     public static String MESSAGE_CONGRATULATION = "Congratulation!";
     public static String MESSAGE_COMPLETE = "You haved completed all inputs correctly.";
     public static String MESSAGE_PLAYER_TIME = "Your time";
+    public static String MESSAGE_INPUT_NEW_PLAYER_NAME = "Please input the new player name.";
 
 
     public static void loadIcon()
@@ -81,7 +85,8 @@ public class GlobalSettings
         ICON_START = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "icon-start.png"));
         ICON_DIALOG_INFO = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "dialog-information.png"));
         ICON_DIALOG_ERROR = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "dialog-error.png"));
-        ICON_DIALOG_QUESTION =  new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "dialog-question.png"));
+        ICON_DIALOG_QUESTION = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "dialog-question.png"));
+        ICON_DIALOG_INPUT = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "dialog-input.png"));
     }
 
     //Set the UI font to the system default font and the theme to the system theme.
@@ -114,12 +119,26 @@ public class GlobalSettings
                 if (value instanceof FontUIResource) {
                     if(!((Font) value).getFamily().toLowerCase().equals("dialog") && !((Font) value).getFamily().toLowerCase().equals("system"))
                     {
-                    	GlobalFont = ((FontUIResource) value).deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
-                    	break;
+                        GlobalFont = ((FontUIResource) value).deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
+                        break;
                     }
                 }
             }
+            if(GlobalFont == null)
+                GlobalFont = Font.decode(null).deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
         }
+
+        UIManager.put("TextField.font", GlobalFont);
+        UIManager.put("TextField.margin", new Insets(3, 4, 3, 4));
+        UIManager.put("Button.font", GlobalFont);
+        UIManager.put("Button.margin", new Insets(2, 10, 2, 10));
+        UIManager.put("Label.font", GlobalFont);
+        UIManager.put("RadioButton.font", GlobalFont);
+        UIManager.put("OptionPane.font", GlobalFont.deriveFont(DIALOG_MESSAGE_FONT_SIZE));
+        UIManager.put("OptionPane.messageFont", GlobalFont.deriveFont(DIALOG_MESSAGE_FONT_SIZE));
+        UIManager.put("OptionPane.buttonFont", GlobalFont.deriveFont(DIALOG_MESSAGE_FONT_SIZE));
+
+        //System.out.println("Display Language:" + Locale.getDefault().getDisplayLanguage());
     }
 
     public static void setUIFont(String DefaultFontFamily)
@@ -131,6 +150,24 @@ public class GlobalSettings
             e.printStackTrace();
             GlobalFont = null;
         }
+    }
+
+    public static void showMessageDialog(JFrame ParentWindow, String message, ImageIcon icon)
+    {
+        JOptionPane.showMessageDialog(ParentWindow, message, GlobalSettings.WINDOW_TITLE, JOptionPane.OK_OPTION, icon);
+    }
+
+    public static boolean checkPlayerName(String name)
+    {
+        if(name == null || name.length() <= 0)
+            return false;
+        int i;
+        for(i = 0; i < name.length(); i++)
+        {
+            if(name.charAt(i) == ' ')
+                return false;
+        }
+        return true;
     }
 
 }
