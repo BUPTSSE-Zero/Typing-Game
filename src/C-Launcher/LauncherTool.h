@@ -11,8 +11,10 @@
 
 #ifdef _WIN32
 #define JVM_DLL "jvm.dll"
+#define TYPING_GAME_RUNTIME "TypingGame.dll"
 #else
 #define JVM_DLL "libjvm.so"
+#define TYPING_GAME_RUNTIME "TypingGame.so"
 #endif
 #define JVM_CFG "jvm.cfg"
 

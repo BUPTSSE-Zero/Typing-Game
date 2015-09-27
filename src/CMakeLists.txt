@@ -43,6 +43,16 @@ if(NOT WIN32)
 	link_libraries(${GTK2_LIBRARIES})
 endif()
 
+set(JNI_RUNTIME_SOURCE
+		Java/buptsse/zero/JNI_MainInterface.h
+		Java/buptsse/zero/JNI_MainInterface.c
+	)
+
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+add_library(Typing-Game-JNI-Runtime SHARED ${JNI_RUNTIME_SOURCE})
+set_target_properties(Typing-Game-JNI-Runtime PROPERTIES OUTPUT_NAME "TypingGame") 
+set_target_properties(Typing-Game-JNI-Runtime PROPERTIES PREFIX "") 
+	
 set(LAUNCHER_SOURCE_FILES
 		C-Launcher/LauncherTool.h
 		C-Launcher/LauncherTool-Common.c
@@ -79,4 +89,5 @@ endif()
 
 add_executable(Typing-Game-Launcher ${LAUNCHER_SOURCE_FILES})			
 add_dependencies(Typing-Game-Launcher Typing-Game-Java)
+add_dependencies(Typing-Game-Launcher Typing-Game-JNI-Runtime)
 					

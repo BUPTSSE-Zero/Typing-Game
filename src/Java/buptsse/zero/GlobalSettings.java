@@ -8,6 +8,7 @@ import java.util.Locale;
 
 public class GlobalSettings
 {
+    public static final String GAME_RUNTIME = "TypingGame";
     public static Font GlobalFont = null;
     public static Dimension ScreenSize = null;
 
@@ -95,17 +96,10 @@ public class GlobalSettings
         ScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
         try
         {
-            String OSName = System.getProperty("os.name");
-            if(OSName.toLowerCase().contains("windows"))
-            {
-                OSInfo = SystemPlatform.OS_WINDOWS;
+            if(OSInfo == SystemPlatform.OS_WINDOWS)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            }
             else
-            {
-                OSInfo = SystemPlatform.OS_LINUX;
                 UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
-            }
         }catch(Exception e){
             e.printStackTrace();
             System.err.println("Can't load the system theme.");
@@ -154,7 +148,30 @@ public class GlobalSettings
 
     public static void showMessageDialog(JFrame ParentWindow, String message, ImageIcon icon)
     {
-        JOptionPane.showMessageDialog(ParentWindow, message, GlobalSettings.WINDOW_TITLE, JOptionPane.OK_OPTION, icon);
+        JOptionPane.showMessageDialog(ParentWindow, message, GlobalSettings.WINDOW_TITLE, JOptionPane.PLAIN_MESSAGE, icon);
+    }
+
+    public static void checkOSType()
+    {
+        String OSName = System.getProperty("os.name");
+        if(OSName.toLowerCase().contains("windows"))
+            OSInfo = SystemPlatform.OS_WINDOWS;
+        else
+            OSInfo = SystemPlatform.OS_LINUX;
+    }
+
+    public static void initGameRuntime()
+    {
+        try{
+            System.loadLibrary(GlobalSettings.GAME_RUNTIME);
+        }catch (Error e){
+            e.printStackTrace();
+            if(OSInfo == SystemPlatform.OS_WINDOWS)
+                showMessageDialog(null, "Load runtime " + GAME_RUNTIME + ".dll" + " failed.", null);
+            else if(OSInfo == SystemPlatform.OS_LINUX)
+                showMessageDialog(null, "Load runtime " + GAME_RUNTIME + ".so" + " failed.", null);
+            System.exit(1);
+        }
     }
 
     public static boolean checkPlayerName(String name)
@@ -169,5 +186,4 @@ public class GlobalSettings
         }
         return true;
     }
-
 }

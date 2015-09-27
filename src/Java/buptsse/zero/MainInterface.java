@@ -2,7 +2,6 @@ package buptsse.zero;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.peer.FileDialogPeer;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
@@ -105,30 +104,13 @@ public class MainInterface {
 				}
 			}
 		});
-		final FileDialog FileBrowseDialog = new FileDialog(MainWindow);
-		FileBrowseDialog.setMode(FileDialog.LOAD);
-		FileBrowseDialog.setTitle(GlobalSettings.LABEL_BROWSE);
-		FileBrowseDialog.setFilenameFilter(new FilenameFilter() {
-			@Override
-			public boolean accept(File dir, String name) {
-				// TODO Auto-generated method stub
-				if (name.toLowerCase().endsWith(".xml"))
-					return true;
-				return false;
-			}
-		});
 		BrowseButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				FileBrowseDialog.setVisible(true);
-				if(FileBrowseDialog.getFile() != null)
-				{
-					if(FileBrowseDialog.getFile().contains(File.pathSeparator))
-						Option2TextField.setText(FileBrowseDialog.getFile());
-					else
-						Option2TextField.setText(FileBrowseDialog.getDirectory() + FileBrowseDialog.getFile());
-				}
+				String FilePath = openFile("xml");
+				if(FilePath != null && FilePath.length() > 0)
+					Option2TextField.setText(FilePath);
 			}
 		});
 		Option2Box.add(BrowseButton);
@@ -273,13 +255,17 @@ public class MainInterface {
 		});
 	}
 	
-	/*public static void main(String[] args) {
+	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		MainInterface.show();
-	}*/
+	}
+
+	private static native String openFile(String FileSuffix);
 
 	public static void show()
 	{
+		GlobalSettings.checkOSType();
+		GlobalSettings.initGameRuntime();
 		GlobalSettings.loadIcon();
 		GlobalSettings.setUI();
 		MainWindow = new JFrame();
