@@ -3,8 +3,8 @@ package buptsse.zero;
 import javax.swing.*;
 import javax.swing.plaf.FontUIResource;
 import java.awt.*;
+import java.io.File;
 import java.util.Enumeration;
-import java.util.Locale;
 
 public class GlobalSettings
 {
@@ -20,7 +20,7 @@ public class GlobalSettings
     public static SystemPlatform OSInfo;
 
     private static final float TEXT_FONT_SIZE = (float)18.0;
-    private static final float DIALOG_MESSAGE_FONT_SIZE = (float)14.0;
+    private static final float DIALOG_MESSAGE_FONT_SIZE = (float)15.0;
     private static final String ICON_PATH = "res/icon/";
     //Icons
     public static ImageIcon ICON_OPEN = null;
@@ -94,16 +94,18 @@ public class GlobalSettings
     public static void setUI()
     {
         ScreenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        boolean ThemeInitFlag = false;
         try
         {
             if(OSInfo == SystemPlatform.OS_WINDOWS)
                 UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
             else
-                UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
+               UIManager.setLookAndFeel("com.sun.java.swing.plaf.gtk.GTKLookAndFeel");
         }catch(Exception e){
             e.printStackTrace();
             System.err.println("Can't load the system theme.");
         }
+        ThemeInitFlag = true;
         if(GlobalFont == null)
         {
             Enumeration<Object> KeyVector = UIManager.getDefaults().keys();
@@ -121,25 +123,34 @@ public class GlobalSettings
             if(GlobalFont == null)
                 GlobalFont = Font.decode(null).deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
         }
-
-        UIManager.put("TextField.font", GlobalFont);
-        UIManager.put("TextField.margin", new Insets(3, 4, 3, 4));
-        UIManager.put("Button.font", GlobalFont);
+        
+        //In Linux,use GTK default font size.
+        if(OSInfo == SystemPlatform.OS_LINUX && ThemeInitFlag)
+        {
+        	Font GtkFont = UIManager.getDefaults().getFont("Label.font");
+        	if(GtkFont != null)
+        		GlobalFont = new Font(GlobalFont.getFamily(), Font.PLAIN, GtkFont.getSize());
+        	//System.out.println("font size:" + GlobalFont.getSize());
+        }
+        
+	    UIManager.put("TextField.font", GlobalFont);
+	    UIManager.put("Button.font", GlobalFont);
+	    UIManager.put("Label.font", GlobalFont);
+	    UIManager.put("RadioButton.font", GlobalFont);
         UIManager.put("Button.margin", new Insets(2, 10, 2, 10));
-        UIManager.put("Label.font", GlobalFont);
-        UIManager.put("RadioButton.font", GlobalFont);
+        UIManager.put("TextField.margin", new Insets(3, 4, 3, 4));
         UIManager.put("OptionPane.font", GlobalFont.deriveFont(DIALOG_MESSAGE_FONT_SIZE));
         UIManager.put("OptionPane.messageFont", GlobalFont.deriveFont(DIALOG_MESSAGE_FONT_SIZE));
         UIManager.put("OptionPane.buttonFont", GlobalFont.deriveFont(DIALOG_MESSAGE_FONT_SIZE));
-
+        
         //System.out.println("Display Language:" + Locale.getDefault().getDisplayLanguage());
     }
 
     public static void setUIFont(String DefaultFontFamily)
     {
-        //System.out.println("Default Font:" + DefaultFontFamily);
+        System.out.println("Default Font:" + DefaultFontFamily);
         try{
-            GlobalFont = Font.decode(DefaultFontFamily).deriveFont(Font.PLAIN, TEXT_FONT_SIZE);
+        	GlobalFont = Font.decode(DefaultFontFamily).deriveFont(FontUIResource.PLAIN, TEXT_FONT_SIZE);
         }catch (Exception e){
             e.printStackTrace();
             GlobalFont = null;
@@ -160,18 +171,15 @@ public class GlobalSettings
             OSInfo = SystemPlatform.OS_LINUX;
     }
 
-    public static void initGameRuntime()
+    public static boolean initGameRuntime(String LibPath)
     {
         try{
-            System.loadLibrary(GlobalSettings.GAME_RUNTIME);
+        	System.load(new File(LibPath).getAbsolutePath());
         }catch (Error e){
             e.printStackTrace();
-            if(OSInfo == SystemPlatform.OS_WINDOWS)
-                showMessageDialog(null, "Load runtime " + GAME_RUNTIME + ".dll" + " failed.", null);
-            else if(OSInfo == SystemPlatform.OS_LINUX)
-                showMessageDialog(null, "Load runtime " + GAME_RUNTIME + ".so" + " failed.", null);
-            System.exit(1);
+            return false;
         }
+        return true;
     }
 
     public static boolean checkPlayerName(String name)

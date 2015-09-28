@@ -11,6 +11,7 @@
 #endif //_DEBUG
 #endif //_MSC_VER
 #else
+#define GLOBAL_FONT_SIZE 14
 #include <gtk/gtk.h>
 #endif //_WIN32
 
@@ -25,8 +26,9 @@
 																"if %s exists in PATH or the directory where you installed JRE.\n\n" \
 																"Do you want to load %s manually?"
 
-#define ERROR_MAIN_CLASS_NOT_FOUND "Can not find the class buptsse.zero.MainInterface in Typing-Game.jar"
-#define ERROR_MAIN_METHOD_NOT_FOUND "Can't find the entry method \"show()\" in class buptsse.zero.MainInterface"
+#define ERROR_CLASS_NOT_FOUND "Can not find the class %s in %s."
+#define ERROR_METHOD_NOT_FOUND "Can't find the entry of the method \"%s\" in class %s."
+#define ERROR_RUNTIME_INIT_FAILED "Load runtime %s failed."
 
 JNIEnv* env;
 JavaVM* java_vm;
@@ -126,25 +128,46 @@ int main()
 		manual_load_jvm(error_msg);
 	}
 
-	jclass main_class = (*env)->FindClass(env, "buptsse/zero/MainInterface");
+	jclass main_class = (*env)->FindClass(env, CLASS_MAIN_INTERFACE);
 	if (main_class == NULL)
 	{
-		show_error_dialog(ERROR_MAIN_CLASS_NOT_FOUND);
+    sprintf(error_msg, ERROR_CLASS_NOT_FOUND, CLASS_MAIN_INTERFACE, TYPING_GAME_JAR_PATH);
+		show_error_dialog(error_msg);
 		return -1;
 	}
-	
-	jmethodID main_method_id = (*env)->GetStaticMethodID(env, main_class, "show", "()V");
+
+	jmethodID main_method_id = (*env)->GetStaticMethodID(env, main_class, METHOD_SHOW, "()V");
 	if (main_method_id == NULL)
 	{
-		show_error_dialog(ERROR_MAIN_METHOD_NOT_FOUND);
+    sprintf(error_msg, ERROR_METHOD_NOT_FOUND, METHOD_SHOW, CLASS_MAIN_INTERFACE);
+		show_error_dialog(error_msg);
 		return -1;
 	}
 
   const char* default_font = NULL;
-  jclass settings_class = (*env)->FindClass(env, "buptsse/zero/GlobalSettings");
+  jclass settings_class = (*env)->FindClass(env, CLASS_GLOBAL_SETTINGS);
 	if (settings_class != NULL)
 	{
-		jmethodID set_font_method_id = (*env)->GetStaticMethodID(env, settings_class, "setUIFont", "(Ljava/lang/String;)V");
+    //init runtime
+    jmethodID init_runtime_method_id = (*env)->GetStaticMethodID(env, settings_class, METHOD_INIT_RUNTIME, "(Ljava/lang/String;)Z");
+    if(init_runtime_method_id == NULL)
+    {
+      sprintf(error_msg, ERROR_METHOD_NOT_FOUND, METHOD_INIT_RUNTIME, CLASS_GLOBAL_SETTINGS);
+      show_error_dialog(error_msg);
+      return -1;
+    }
+
+    jstring runtime_path = (*env)->NewStringUTF(env, TYPING_GAME_RUNTIME);
+    jboolean result = (*env)->CallStaticBooleanMethod(env, settings_class, init_runtime_method_id, runtime_path);
+    (*env)->DeleteGlobalRef(env, runtime_path);
+    if(!result)
+    {
+      sprintf(error_msg, ERROR_RUNTIME_INIT_FAILED, TYPING_GAME_RUNTIME);
+      show_error_dialog(error_msg);
+      return 1;
+    }
+
+		jmethodID set_font_method_id = (*env)->GetStaticMethodID(env, settings_class, METHOD_SET_UI_FONT, "(Ljava/lang/String;)V");
 		if (set_font_method_id != NULL)
 		{
 #ifdef _WIN32
@@ -154,15 +177,22 @@ int main()
 #else
       GtkStyle* default_style = gtk_style_new();
       default_font = pango_font_description_get_family(default_style->font_desc);
+      char gtk_font[MAX_LEN];
+      sprintf(gtk_font, "%s %d", default_font, GLOBAL_FONT_SIZE);
+      GtkSettings* gtk_settings = gtk_settings_get_default();
+      gtk_settings_set_string_property(gtk_settings, "gtk-font-name", gtk_font, "San 12");
 #endif // _WIN32
       if(default_font)
       {
-        printf("Default font:%s\n", default_font);
         jstring font_family = (*env)->NewStringUTF(env, default_font);
         (*env)->CallStaticVoidMethod(env, settings_class, set_font_method_id, font_family);
         (*env)->DeleteGlobalRef(env, font_family);
       }
 		}
+	}else{
+    sprintf(error_msg, ERROR_CLASS_NOT_FOUND, CLASS_GLOBAL_SETTINGS, TYPING_GAME_JAR_PATH);
+    show_error_dialog(error_msg);
+    return -1;
 	}
 
 	(*env)->CallStaticVoidMethod(env, main_class, main_method_id);

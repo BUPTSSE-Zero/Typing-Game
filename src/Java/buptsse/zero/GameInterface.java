@@ -1,7 +1,6 @@
 package buptsse.zero;
 
 import buptsse.zero.GlobalSettings;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;

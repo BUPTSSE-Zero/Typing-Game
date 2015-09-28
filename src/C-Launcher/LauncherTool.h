@@ -14,7 +14,7 @@
 #define TYPING_GAME_RUNTIME "TypingGame.dll"
 #else
 #define JVM_DLL "libjvm.so"
-#define TYPING_GAME_RUNTIME "TypingGame.so"
+#define TYPING_GAME_RUNTIME "libTypingGame.so"
 #endif
 #define JVM_CFG "jvm.cfg"
 
@@ -28,7 +28,14 @@
 #define JVM_CREATE_FUN "JNI_CreateJavaVM"
 #define JRE_MINIMUM_VERSION_WIN JNI_VERSION_1_6
 #define JRE_MINIMUM_VERSION_LINUX 0x00010007						//JRE 1.7
-#define TYPING_GAME_JAR_PATH "./Typing-Game.jar"
+#define TYPING_GAME_JAR_PATH "Typing-Game.jar"
+
+#define CLASS_MAIN_INTERFACE "buptsse/zero/MainInterface"
+#define METHOD_SHOW "show"
+#define CLASS_GLOBAL_SETTINGS "buptsse/zero/GlobalSettings"
+#define METHOD_SET_UI_FONT "setUIFont"
+#define METHOD_INIT_RUNTIME "initGameRuntime"
+
 #include <jni.h>
 
 enum JvmLoadErrorType

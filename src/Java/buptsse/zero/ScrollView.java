@@ -2,6 +2,7 @@ package buptsse.zero;
 
 import javax.swing.*;
 import javax.swing.border.BevelBorder;
+
 import java.awt.*;
 
 public class ScrollView extends JScrollPane
@@ -20,7 +21,6 @@ public class ScrollView extends JScrollPane
             box.setOpaque(true);
             box.setBackground(new Color(0xFAFAFA));
         }
-        setBorder(BorderFactory.createLineBorder(BorderColor, 1));
     }
 
     void setContentHeight(int height)
@@ -28,7 +28,7 @@ public class ScrollView extends JScrollPane
         ContentHeight = height;
     }
 
-
+    
     @Override
     public void paint(Graphics g)
     {
@@ -48,5 +48,14 @@ public class ScrollView extends JScrollPane
             }
         }
         super.paint(g);
+        g.setColor(BorderColor);
+        g.drawLine(0, 0, g.getClipBounds().width - 1, 0);
+        g.drawLine(0, g.getClipBounds().height - 1, g.getClipBounds().width - 1, g.getClipBounds().height - 1);
+    }
+    
+    @Override
+    protected void paintBorder(Graphics g) {
+    	// TODO Auto-generated method stub
+    	return;
     }
 }

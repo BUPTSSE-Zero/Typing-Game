@@ -48,10 +48,15 @@ set(JNI_RUNTIME_SOURCE
 		Java/buptsse/zero/JNI_MainInterface.c
 	)
 
+	
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
 add_library(Typing-Game-JNI-Runtime SHARED ${JNI_RUNTIME_SOURCE})
-set_target_properties(Typing-Game-JNI-Runtime PROPERTIES OUTPUT_NAME "TypingGame") 
-set_target_properties(Typing-Game-JNI-Runtime PROPERTIES PREFIX "") 
+set_target_properties(Typing-Game-JNI-Runtime PROPERTIES OUTPUT_NAME "TypingGame")
+if(WIN32)
+	set_target_properties(Typing-Game-JNI-Runtime PROPERTIES PREFIX "")
+endif()
+	
 	
 set(LAUNCHER_SOURCE_FILES
 		C-Launcher/LauncherTool.h

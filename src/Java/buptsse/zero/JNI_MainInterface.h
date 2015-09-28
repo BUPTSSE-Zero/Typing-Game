@@ -7,12 +7,23 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+#undef buptsse_zero_MainInterface_WINDOW_WIDTH
+#define buptsse_zero_MainInterface_WINDOW_WIDTH 700L
+#undef buptsse_zero_MainInterface_VERTICAL_MARGIN
+#define buptsse_zero_MainInterface_VERTICAL_MARGIN 10L
+#undef buptsse_zero_MainInterface_HORIZONTAL_MARGIN
+#define buptsse_zero_MainInterface_HORIZONTAL_MARGIN 10L
+#undef buptsse_zero_MainInterface_TITLE_FONT_SIZE
+#define buptsse_zero_MainInterface_TITLE_FONT_SIZE 40.0f
+#undef buptsse_zero_MainInterface_NUM_MAX_LENGTH
+#define buptsse_zero_MainInterface_NUM_MAX_LENGTH 8L
 /*
  * Class:     buptsse_zero_MainInterface
  * Method:    openFile
- * Signature: (Ljava/lang/String;)Ljava/lang/String;
+ * Signature: (Ljavax/swing/JFrame;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
  */
-JNIEXPORT jstring JNICALL Java_buptsse_zero_MainInterface_openFile (JNIEnv *, jobject, jstring);
+JNIEXPORT jstring JNICALL Java_buptsse_zero_MainInterface_openFile
+  (JNIEnv *, jclass, jobject, jstring, jstring);
 
 #ifdef __cplusplus
 }

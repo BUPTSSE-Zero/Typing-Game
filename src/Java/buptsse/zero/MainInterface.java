@@ -9,6 +9,8 @@ import java.util.ArrayList;
 
 import javax.swing.*;
 
+import buptsse.zero.GlobalSettings.SystemPlatform;
+
 public class MainInterface {
 	private static JFrame MainWindow = null;
 	private static Box MainBox = null;
@@ -108,7 +110,29 @@ public class MainInterface {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				String FilePath = openFile("xml");
+				String FilePath = null;
+				if(GlobalSettings.OSInfo == SystemPlatform.OS_WINDOWS)
+					FilePath = openFile(MainWindow, "xml", System.getProperty("java.home"));
+				else {
+					FileDialog FileChooserDialog = new FileDialog(MainWindow);
+					FileChooserDialog.setFilenameFilter(new FilenameFilter() {
+						@Override
+						public boolean accept(File dir, String name) {
+							// TODO Auto-generated method stub
+							if(name.toLowerCase().endsWith(".xml"))
+								return true;
+							return false;
+						}
+					});
+					FileChooserDialog.setTitle(GlobalSettings.LABEL_BROWSE);
+					FileChooserDialog.setVisible(true);
+					FilePath = FileChooserDialog.getFile();
+					if(FilePath != null && !FilePath.contains(File.separator))
+						FilePath = FileChooserDialog.getDirectory() + FileChooserDialog.getFile();
+					if(FilePath != null && !FilePath.startsWith(File.separator))
+						FilePath = File.separator + FilePath;
+						
+				}
 				if(FilePath != null && FilePath.length() > 0)
 					Option2TextField.setText(FilePath);
 			}
@@ -255,17 +279,16 @@ public class MainInterface {
 		});
 	}
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		MainInterface.show();
-	}
-
-	private static native String openFile(String FileSuffix);
-
+	}*/
+	
+	private static native String openFile(JFrame parent, String FileSuffix, String JavaHomePath);
+	
 	public static void show()
 	{
 		GlobalSettings.checkOSType();
-		GlobalSettings.initGameRuntime();
 		GlobalSettings.loadIcon();
 		GlobalSettings.setUI();
 		MainWindow = new JFrame();
