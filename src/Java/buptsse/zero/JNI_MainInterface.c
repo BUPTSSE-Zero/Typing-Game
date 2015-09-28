@@ -4,9 +4,10 @@
 #else
 #include <dlfcn.h>
 #include <gtk/gtk.h>
+#endif
+
 #include <jawt.h>
 #include <jawt_md.h>
-#endif
 
 #define MAX_LEN 512
 
