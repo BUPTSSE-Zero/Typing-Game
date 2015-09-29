@@ -111,28 +111,7 @@ public class MainInterface {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				String FilePath = null;
-				if(GlobalSettings.OSInfo == SystemPlatform.OS_WINDOWS)
-					FilePath = openFile(MainWindow, "xml", System.getProperty("java.home"));
-				else {
-					FileDialog FileChooserDialog = new FileDialog(MainWindow);
-					FileChooserDialog.setFilenameFilter(new FilenameFilter() {
-						@Override
-						public boolean accept(File dir, String name) {
-							// TODO Auto-generated method stub
-							if(name.toLowerCase().endsWith(".xml"))
-								return true;
-							return false;
-						}
-					});
-					FileChooserDialog.setTitle(GlobalSettings.LABEL_BROWSE);
-					FileChooserDialog.setVisible(true);
-					FilePath = FileChooserDialog.getFile();
-					if(FilePath != null && !FilePath.contains(File.separator))
-						FilePath = FileChooserDialog.getDirectory() + FileChooserDialog.getFile();
-					if(FilePath != null && !FilePath.startsWith(File.separator))
-						FilePath = File.separator + FilePath;
-						
-				}
+				FilePath = openFile("xml");
 				if(FilePath != null && FilePath.length() > 0)
 					Option2TextField.setText(FilePath);
 			}
@@ -284,7 +263,7 @@ public class MainInterface {
 		MainInterface.show();
 	}*/
 	
-	private static native String openFile(JFrame parent, String FileSuffix, String JavaHomePath);
+	private static native String openFile(String FileSuffix);
 	
 	public static void show()
 	{

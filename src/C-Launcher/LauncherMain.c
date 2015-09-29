@@ -32,6 +32,8 @@
 
 JNIEnv* env;
 JavaVM* java_vm;
+jclass main_class;
+jmethodID main_method_id;
 
 void manual_load_jvm(const char* jvm_load_error_msg)
 {
@@ -119,6 +121,7 @@ int main()
 	chdir(exec_path);
 #else
   gtk_init(NULL, NULL);                         //init gtk library.
+  int gtk_default_font_size = 12;
 #endif // _WIN32
 
 	char error_msg[MAX_LEN];
@@ -128,7 +131,7 @@ int main()
 		manual_load_jvm(error_msg);
 	}
 
-	jclass main_class = (*env)->FindClass(env, CLASS_MAIN_INTERFACE);
+	main_class = (*env)->FindClass(env, CLASS_MAIN_INTERFACE);
 	if (main_class == NULL)
 	{
     sprintf(error_msg, ERROR_CLASS_NOT_FOUND, CLASS_MAIN_INTERFACE, TYPING_GAME_JAR_PATH);
@@ -136,7 +139,7 @@ int main()
 		return -1;
 	}
 
-	jmethodID main_method_id = (*env)->GetStaticMethodID(env, main_class, METHOD_SHOW, "()V");
+	main_method_id = (*env)->GetStaticMethodID(env, main_class, METHOD_SHOW, "()V");
 	if (main_method_id == NULL)
 	{
     sprintf(error_msg, ERROR_METHOD_NOT_FOUND, METHOD_SHOW, CLASS_MAIN_INTERFACE);
@@ -177,6 +180,7 @@ int main()
 #else
       GtkStyle* default_style = gtk_style_new();
       default_font = pango_font_description_get_family(default_style->font_desc);
+      gtk_default_font_size = pango_font_description_get_size(default_style->font_desc) / PANGO_SCALE;
       char gtk_font[MAX_LEN];
       sprintf(gtk_font, "%s %d", default_font, GLOBAL_FONT_SIZE);
       GtkSettings* gtk_settings = gtk_settings_get_default();
@@ -196,7 +200,17 @@ int main()
 	}
 
 	(*env)->CallStaticVoidMethod(env, main_class, main_method_id);
-
+#ifdef _WIN32
 	(*java_vm)->DestroyJavaVM(java_vm);
+#else
+  // recover original GTK global font.
+  if(default_font)
+  {
+    char gtk_font[MAX_LEN];
+    sprintf(gtk_font, "%s %d", default_font, gtk_default_font_size);
+    gtk_settings_set_string_property(gtk_settings_get_default(), "gtk-font-name", gtk_font, "San 12");
+  }
+  gtk_main();
+#endif // _WIN32
 	return 0;
 }

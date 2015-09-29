@@ -20,10 +20,10 @@ extern "C" {
 /*
  * Class:     buptsse_zero_MainInterface
  * Method:    openFile
- * Signature: (Ljavax/swing/JFrame;Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;
+ * Signature: (Ljava/lang/String;)Ljava/lang/String;
  */
 JNIEXPORT jstring JNICALL Java_buptsse_zero_MainInterface_openFile
-  (JNIEnv *, jclass, jobject, jstring, jstring);
+  (JNIEnv *, jclass, jstring);
 
 #ifdef __cplusplus
 }

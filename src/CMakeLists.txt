@@ -44,8 +44,8 @@ if(NOT WIN32)
 endif()
 
 set(JNI_RUNTIME_SOURCE
-		Java/buptsse/zero/JNI_MainInterface.h
-		Java/buptsse/zero/JNI_MainInterface.c
+		C-Runtime/JNI_MainInterface.h
+		C-Runtime/JNI_MainInterface.c
 	)
 
 	
