@@ -5,6 +5,8 @@ import javax.swing.plaf.FontUIResource;
 import java.awt.*;
 import java.io.File;
 import java.util.Enumeration;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 public class GlobalSettings
 {
@@ -73,7 +75,7 @@ public class GlobalSettings
     public static String MESSAGE_INPUT_ERROR = "Your input contains error(s), please check it!";
     public static String MESSAGE_CONGRATULATION = "Congratulation!";
     public static String MESSAGE_COMPLETE = "You haved completed all inputs correctly.";
-    public static String MESSAGE_PLAYER_TIME = "Your time";
+    public static String MESSAGE_PLAYER_TIME = "Your Typing time";
     public static String MESSAGE_INPUT_NEW_PLAYER_NAME = "Please input the new player name.";
     public static String MESSAGE_RANK_LIST_EMPTY = "The rank list fot this text is empty.";
     public static String MESSAGE_QUERY_CLEAR_RANK_LIST = "Are you sure to delete all the records in this rank list?";
@@ -154,8 +156,6 @@ public class GlobalSettings
         UIManager.put("OptionPane.font", GlobalFont.deriveFont(DIALOG_MESSAGE_FONT_SIZE));
         UIManager.put("OptionPane.messageFont", GlobalFont.deriveFont(DIALOG_MESSAGE_FONT_SIZE));
         UIManager.put("OptionPane.buttonFont", GlobalFont.deriveFont(DIALOG_MESSAGE_FONT_SIZE));
-        
-        //System.out.println("Display Language:" + Locale.getDefault().getDisplayLanguage());
     }
 
     public static void setUIFont(String DefaultFontFamily)
@@ -205,5 +205,62 @@ public class GlobalSettings
                 return false;
         }
         return true;
+    }
+
+    public static void setLanguageString()
+    {
+        ResourceBundle StringResource = null;
+        Locale LangLocale = Locale.getDefault();
+        //LangLocale = new Locale("zh");
+        if(LangLocale == null)
+            return;
+        try {
+            StringResource = ResourceBundle.getBundle("buptsse.zero.res.string.string", LangLocale);
+        }catch (Exception e){
+            e.printStackTrace();
+            StringResource = null;
+            try{
+                StringResource = ResourceBundle.getBundle("buptsse.zero.res.string.string", new Locale(LangLocale.getLanguage()));
+            }catch (Exception e2){
+                e2.printStackTrace();
+                StringResource = null;
+            }
+        }
+        if(StringResource == null)
+        {
+            System.err.println("Can't find language resource for " + LangLocale.toString() + ".");
+            return;
+        }
+        WINDOW_TITLE = StringResource.getString("WINDOW_TITLE");
+        LABEL_ABOUT = StringResource.getString("LABEL_ABOUT");
+        LABEL_BROWSE = StringResource.getString("LABEL_BROWSE");
+        LABEL_CLEAR = StringResource.getString("LABEL_CLEAR");
+        LABEL_CLOSE = StringResource.getString("LABEL_CLOSE");
+        LABEL_CONTINUE = StringResource.getString("LABEL_CONTINUE");
+        LABEL_ENTER = StringResource.getString("LABEL_ENTER");
+        LABEL_EXIT = StringResource.getString("LABEL_EXIT");
+        LABEL_EXTERNAL_TEXT = StringResource.getString("LABEL_EXTERNAL_TEXT");
+        LABEL_FINISH = StringResource.getString("LABEL_FINISH");
+        LABEL_INTERNAL_TEXT = StringResource.getString("LABEL_INTERNAL_TEXT");
+        LABEL_PLAYER_NAME = StringResource.getString("LABEL_PLAYER_NAME");
+        LABEL_PAUSE = StringResource.getString("LABEL_PAUSE");
+        LABEL_QUIT = StringResource.getString("LABEL_QUIT");
+        LABEL_RANK = StringResource.getString("LABEL_RANK");
+        LABEL_RANK_LIST = StringResource.getString("LABEL_RANK_LIST");
+        LABEL_REPLAY = StringResource.getString("LABEL_REPLAY");
+        LABEL_START = StringResource.getString("LABEL_START");
+        LABEL_TYPING_TIME = StringResource.getString("LABEL_TYPING_TIME");
+        MESSAGE_COMPLETE = StringResource.getString("MESSAGE_COMPLETE");
+        MESSAGE_CONGRATULATION = StringResource.getString("MESSAGE_CONGRATULATION");
+        MESSAGE_FILE_OPEN_FAILD = StringResource.getString("MESSAGE_FILE_OPEN_FAILD");
+        MESSAGE_ID_NUMBER_INVALID = StringResource.getString("MESSAGE_ID_NUMBER_INVALID");
+        MESSAGE_INPUT_ERROR = StringResource.getString("MESSAGE_INPUT_ERROR");
+        MESSAGE_INPUT_NEW_PLAYER_NAME = StringResource.getString("MESSAGE_INPUT_NEW_PLAYER_NAME");
+        MESSAGE_PLAYER_NAME_INVALID = StringResource.getString("MESSAGE_PLAYER_NAME_INVALID");
+        MESSAGE_PLAYER_TIME = StringResource.getString("MESSAGE_PLAYER_TIME");
+        MESSAGE_RANK_LIST_EMPTY = StringResource.getString("MESSAGE_RANK_LIST_EMPTY");
+        MESSAGE_TEXT_EMPTY = StringResource.getString("MESSAGE_TEXT_EMPTY");
+        MESSAGE_QUERY_CLEAR_RANK_LIST = StringResource.getString("MESSAGE_QUERY_CLEAR_RANK_LIST");
+        MESSAGE_QUERY_EXIT = StringResource.getString("MESSAGE_QUERY_EXIT");
     }
 }

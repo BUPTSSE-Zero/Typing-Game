@@ -264,6 +264,7 @@ public class MainInterface {
 	{
 		GlobalSettings.checkOSType();
 		GlobalSettings.loadIcon();
+		GlobalSettings.setLanguageString();
 		GlobalSettings.setUI();
 		MainWindow = new JFrame();
 		MainWindow.setTitle(GlobalSettings.WINDOW_TITLE + " - Powered By Java Swing");
