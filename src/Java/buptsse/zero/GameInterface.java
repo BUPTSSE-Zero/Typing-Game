@@ -1,9 +1,10 @@
 package buptsse.zero;
 
-import buptsse.zero.GlobalSettings;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.io.FileInputStream;
 import java.util.ArrayList;
 
 public class GameInterface
@@ -17,6 +18,8 @@ public class GameInterface
     private int WindowTotalHeight = 0;
     private boolean PlayingFlag = false;
     private boolean StartFlag = false;
+    private RankList Rank = null;
+    private ArrayList<PlayerInfo> PlayerList = null;
 
     private final int VERTICAL_MARGIN = 10;
     private final int HORIZONTAL_MARGIN = 10;
@@ -142,6 +145,10 @@ public class GameInterface
 
         JButton QuitButton = new JButton(GlobalSettings.LABEL_QUIT, GlobalSettings.ICON_QUIT);
         ButtonBox.add(QuitButton);
+        ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
+
+        JButton RankListButton = new JButton(GlobalSettings.LABEL_RANK_LIST, GlobalSettings.ICON_LIST);
+        ButtonBox.add(RankListButton);
         ButtonBox.add(Box.createHorizontalGlue());
 
         final JButton ControlButton = new JButton(GlobalSettings.LABEL_START, GlobalSettings.ICON_START);
@@ -263,6 +270,13 @@ public class GameInterface
             }
         });
 
+        RankListButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                new RankListInterface(PlayerList, PlayerNameLabel.getText(), GameWindow).show();
+            }
+        });
+
         ReplayButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -302,6 +316,10 @@ public class GameInterface
                         GlobalSettings.WINDOW_TITLE, JOptionPane.OK_OPTION,  GlobalSettings.ICON_DIALOG_INFO);
                 ControlButton.setEnabled(false);
                 FinishButton.setEnabled(false);
+                PlayerList.add(new PlayerInfo(PlayerNameLabel.getText(), GameChronometer.getElapseTime()));
+                RankList.sortRankList(PlayerList);
+                Rank.updateRankList(PlayerList);
+                Rank.writeRankListFile();
             }
         });
 
@@ -319,6 +337,19 @@ public class GameInterface
     {
         this.PlayerName = PlayerName;
         this.MultiRowText = text;
+        File RankListFile = new File(RankList.RANK_LIST_FILE);
+        try{
+            if(RankListFile.exists())
+                Rank = new RankList(new FileInputStream(RankListFile));
+            else
+                Rank = new RankList();
+        }catch (Exception e){
+            e.printStackTrace();
+            Rank = new RankList();
+        }
+        PlayerList = Rank.getRankList(text);
+        if(PlayerList == null)
+            PlayerList = new ArrayList<PlayerInfo>();
     }
 
     public void show()
@@ -326,7 +357,7 @@ public class GameInterface
         GameWindow = new JFrame(GlobalSettings.PRODUCT_NAME);
         initWindow();
         GameWindow.setVisible(true);
-        WindowTotalHeight = MainBox.getHeight() + ScrollBox.getHeight() + ButtonAreaBox.getHeight() + GameWindow.getInsets().top;
+        WindowTotalHeight = MainBox.getHeight() + ScrollBox.getHeight() + ButtonAreaBox.getHeight() + GameWindow.getInsets().top + 10;
         if(WindowTotalHeight > GlobalSettings.ScreenSize.height - 50)
             WindowTotalHeight = GlobalSettings.ScreenSize.height - 50;
         GameWindow.setSize(WINDOW_WIDTH, WindowTotalHeight);

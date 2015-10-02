@@ -18,9 +18,16 @@ public class TextFileParser
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
             DocumentBuilder builder = factory.newDocumentBuilder();
             doc = builder.parse(input);
+            input.close();
             TextList = doc.getElementsByTagName("text");
             return true;
         }catch (Exception e){
+            try{
+                input.close();
+            }catch (Exception ioe){
+                ioe.printStackTrace();
+                return false;
+            }
             e.printStackTrace();
             return false;
         }

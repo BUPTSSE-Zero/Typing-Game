@@ -12,6 +12,9 @@ set(JAVA_SOURCE_FILES
 		${PROJECT_SOURCE_DIR}/Java/buptsse/zero/AutoCheckDocument.java
 		${PROJECT_SOURCE_DIR}/Java/buptsse/zero/GameInterface.java
 		${PROJECT_SOURCE_DIR}/Java/buptsse/zero/MainInterface.java
+		${PROJECT_SOURCE_DIR}/Java/buptsse/zero/RankList.java
+		${PROJECT_SOURCE_DIR}/Java/buptsse/zero/PlayerInfo.java
+		${PROJECT_SOURCE_DIR}/Java/buptsse/zero/RankListInterface.java
 		)
 
 message(STATUS "Java Compiler detected:${CMAKE_Java_COMPILER}")

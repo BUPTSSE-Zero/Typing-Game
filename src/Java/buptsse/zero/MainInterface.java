@@ -2,9 +2,7 @@ package buptsse.zero;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.io.FileInputStream;
-import java.io.FilenameFilter;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -258,10 +256,10 @@ public class MainInterface {
 		});
 	}
 	
-	/*public static void main(String[] args) {
+	public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		MainInterface.show();
-	}*/
+	}
 	
 	private static native String openFile(String FileSuffix);
 	

@@ -1,7 +1,6 @@
 package buptsse.zero;
 
 import javax.swing.*;
-import javax.swing.border.BevelBorder;
 
 import java.awt.*;
 
@@ -11,7 +10,7 @@ public class ScrollView extends JScrollPane
     private int ContentHeight = -1;
     private Box ContentBox = null;
     private int CurrentHeight = 0;
-    private static Color BorderColor = new Color(189, 189, 189);
+    public static final Color BorderColor = new Color(189, 189, 189);
 
     void setContentBox(Box box)
     {

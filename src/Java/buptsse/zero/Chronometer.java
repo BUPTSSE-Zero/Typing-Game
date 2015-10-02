@@ -45,15 +45,30 @@ public class Chronometer implements Runnable
         //System.out.println("Thread exit.");
     }
 
+    public long getElapseTime()
+    {
+        synchronized (DummyObject) {
+            return ElapseTime;
+        }
+    }
+
     public String getTimeString()
     {
         long second, minute, MilliSecond;
         synchronized (DummyObject) {
-            second = ElapseTime / 1000;
-            minute = second / 60;
-            second %= 60;
-            MilliSecond = (ElapseTime % 1000) / 10;
+            return getTimeString(ElapseTime);
         }
+    }
+
+    public static String getTimeString(long time)
+    {
+        if(time < 0)
+            return null;
+        long second = 0, minute = 0, MilliSecond = 0;
+        second = time / 1000;
+        minute = second / 60;
+        second %= 60;
+        MilliSecond = (time % 1000) / 10;
         DecimalFormat formater = new DecimalFormat("00");
         return "" + formater.format(minute) + ':' + formater.format(second) + ":" +
                 formater.format(MilliSecond);
