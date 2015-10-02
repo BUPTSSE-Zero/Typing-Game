@@ -88,6 +88,8 @@ public class RankList
             RootNode.removeChild(RankListNode);
         if(MD5Str == null)
             return;
+        if(NewPlayerList == null || NewPlayerList.size() <= 0)
+            return;
         createRankListNode(MD5Str);
         for(int i = 0; i < NewPlayerList.size(); i++)
         {
@@ -163,6 +165,11 @@ public class RankList
         }
         RankListNode = null;
         return null;
+    }
+
+    public String getTextMD5()
+    {
+        return MD5Str;
     }
 
     public static void sortRankList(ArrayList<PlayerInfo> PlayerList)

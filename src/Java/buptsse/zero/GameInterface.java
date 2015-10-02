@@ -273,7 +273,7 @@ public class GameInterface
         RankListButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                new RankListInterface(PlayerList, PlayerNameLabel.getText(), GameWindow).show();
+                new RankListInterface(PlayerList, Rank, PlayerNameLabel.getText(), GameWindow).show();
             }
         });
 

@@ -14,6 +14,7 @@ public class RankListInterface
     private ArrayList<PlayerInfo> PlayerList;
     private JFrame ParentWindow;
     private String PlayerName;
+    private RankList Rank;
 
     private JFrame MainWindow;
     private Box TitleBox;
@@ -26,11 +27,12 @@ public class RankListInterface
     private final float TITLE_FONT_SIZE = 32;
     private final float TABLE_HEADER_FONT_SIZE = 20;
     private final int COLUMN_NUM = 3;
-    public RankListInterface(ArrayList<PlayerInfo> PlayerList, String PlayerName, JFrame ParentWindow)
+    public RankListInterface(ArrayList<PlayerInfo> PlayerList, RankList Rank, String PlayerName, JFrame ParentWindow)
     {
         this.PlayerList = PlayerList;
         this.ParentWindow = ParentWindow;
         this.PlayerName = PlayerName;
+        this.Rank = Rank;
     }
 
     private void initWindow()
@@ -44,6 +46,14 @@ public class RankListInterface
         TitleLabel.setFont(GlobalSettings.GlobalFont.deriveFont(Font.BOLD, TITLE_FONT_SIZE));
         TitleLabelBox.add(TitleLabel);
         TitleBox.add(TitleLabelBox);
+        TitleBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));
+
+        Box MD5LabelBox = Box.createHorizontalBox();
+        MD5LabelBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
+        MD5LabelBox.add(new JLabel("MD5:" + Rank.getTextMD5().toUpperCase()));
+        MD5LabelBox.add(Box.createHorizontalGlue());
+        MD5LabelBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
+        TitleBox.add(MD5LabelBox);
         TitleBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));
         MainWindow.add(TitleBox, BorderLayout.NORTH);
 
@@ -101,6 +111,23 @@ public class RankListInterface
         ButtonAreaBox.add(Box.createVerticalStrut(VERTICAL_MARGIN));
 
         Box ButtonBox = Box.createHorizontalBox();
+        ButtonBox.add(Box.createHorizontalStrut(HORIZONTAL_MARGIN));
+        JButton CleanButton = new JButton(GlobalSettings.LABEL_CLEAR, GlobalSettings.ICON_CLEAR);
+        CleanButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                int ret = JOptionPane.showConfirmDialog(MainWindow, GlobalSettings.MESSAGE_QUERY_CLEAR_RANK_LIST, GlobalSettings.WINDOW_TITLE,
+                        JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, GlobalSettings.ICON_DIALOG_QUESTION);
+                if (ret == JOptionPane.OK_OPTION) {
+                    PlayerList.clear();
+                    Rank.updateRankList(PlayerList);
+                    Rank.writeRankListFile();
+                    MainWindow.dispose();
+                }
+            }
+        });
+        ButtonBox.add(CleanButton);
+
         ButtonBox.add(Box.createHorizontalGlue());
         JButton CloseButton = new JButton(GlobalSettings.LABEL_CLOSE, GlobalSettings.ICON_CLOSE);
         CloseButton.addActionListener(new ActionListener() {

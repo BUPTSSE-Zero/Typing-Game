@@ -4,10 +4,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.FileInputStream;
 import java.util.ArrayList;
-
 import javax.swing.*;
-
-import buptsse.zero.GlobalSettings.SystemPlatform;
 
 public class MainInterface {
 	private static JFrame MainWindow = null;
@@ -256,10 +253,10 @@ public class MainInterface {
 		});
 	}
 	
-	public static void main(String[] args) {
+	/*public static void main(String[] args) {
 		// TODO Auto-generated method stub
 		MainInterface.show();
-	}
+	}*/
 	
 	private static native String openFile(String FileSuffix);
 	

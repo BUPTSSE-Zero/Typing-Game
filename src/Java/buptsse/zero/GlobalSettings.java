@@ -32,6 +32,7 @@ public class GlobalSettings
     public static ImageIcon ICON_PERSON = null;
     public static ImageIcon ICON_CLOCK = null;
     public static ImageIcon ICON_CLOSE = null;
+    public static ImageIcon ICON_CLEAR = null;
     public static ImageIcon ICON_FINISH = null;
     public static ImageIcon ICON_LIST = null;
     public static ImageIcon ICON_START = null;
@@ -57,6 +58,7 @@ public class GlobalSettings
     public static String LABEL_START = "Start";
     public static String LABEL_CLOSE = "Close";
     public static String LABEL_CONTINUE = "Continue";
+    public static String LABEL_CLEAR = "Clear";
     public static String LABEL_FINISH = "Finish";
     public static String LABEL_PAUSE = "Pause";
     public static String LABEL_REPLAY = "Replay";
@@ -73,13 +75,15 @@ public class GlobalSettings
     public static String MESSAGE_COMPLETE = "You haved completed all inputs correctly.";
     public static String MESSAGE_PLAYER_TIME = "Your time";
     public static String MESSAGE_INPUT_NEW_PLAYER_NAME = "Please input the new player name.";
-    public static String MESSAGE_RANK_LIST_EMPTY = "The rank list is empty.";
+    public static String MESSAGE_RANK_LIST_EMPTY = "The rank list fot this text is empty.";
+    public static String MESSAGE_QUERY_CLEAR_RANK_LIST = "Are you sure to delete all the records in this rank list?";
 
     public static void loadIcon()
     {
         ICON_ABOUT = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "icon-about.png"));
         ICON_CLOCK = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "icon-clock.png"));
         ICON_CLOSE = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "icon-close.png"));
+        ICON_CLEAR = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "icon-clear.png"));
         ICON_ENTER = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "icon-enter.png"));
         ICON_EXIT = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "icon-exit.png"));
         ICON_ERROR = new ImageIcon(GlobalSettings.class.getResource(ICON_PATH + "icon-error.png"));
